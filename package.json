@@ -10,7 +10,8 @@
   "license": "LGPL",
   "dependencies": {
     "array-grid": "^1.4.0",
-    "coffee-script": "^1.9.1"
+    "coffee-script": "^1.9.1",
+    "random-js": "^1.0.4"
   },
   "devDependencies": {
     "chai": "^2.1.2",
