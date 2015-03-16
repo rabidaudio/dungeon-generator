@@ -9,6 +9,7 @@
   "author": "Charles Julian Knight",
   "license": "LGPL",
   "dependencies": {
+    "array-grid": "^1.4.0",
     "coffee-script": "^1.9.1"
   },
   "devDependencies": {
