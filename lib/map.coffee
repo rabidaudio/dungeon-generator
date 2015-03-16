@@ -11,14 +11,11 @@ module.exports = class Map
 
   setCell: (x, y, val) ->
     throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y
-    cell = cells.get x, y
-    if not cell? then cell = new Cell val else cell.update val
+    (cells.get x, y).update val
 
-  # cellLocations: -> cells.coordsAt(index) for cell, index in cells.data
   deadEndLocations:  -> cells.coordsAt(index) for cell, index in cells.data when cell.isDeadEnd()
-  corridorLocations: -> cells.coordsAt(index) for cell, index in cells.data when cell.corridor?
 
-  # bounds: -> [@width -1, @height -1]
+  corridorLocations: -> cells.coordsAt(index) for cell, index in cells.data when cell.corridor?
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >=0 and y < @height
 
@@ -30,14 +27,9 @@ module.exports = class Map
       when 'east'  then return [x+1, y]
       else throw 'Invalid direction: #{direction}'
 
-  getAdjacentCell: (x, y, direction) ->
-    [nx, ny] = @getAdjacent x, y, direction
-    @getCell nx, ny
+  getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...
 
-  hasAdjacent: (x, y, direction) ->
-    # return false if !@inBounds x,y
-    [nx, ny] = @getAdjacent(x, y, direction)
-    return @inBounds nx, ny
+  hasAdjacent: (x, y, direction) -> @inBounds @getAdjacent(x, y, direction)...
 
   # cells: ->
   #   cells
