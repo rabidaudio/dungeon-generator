@@ -20,6 +20,10 @@ module.exports = class Cell
   set: (direction, type) ->
     directions[direction] = type
 
+  update: (d) ->
+    for direction in ['north', 'south', 'east', 'west']
+      @edges[direction] = d[direction] if d[direction]?
+
   setNorth: (type) ->
     @set 'north', type
   setSouth: (type) ->
