@@ -1,0 +1,19 @@
+{
+  "name": "dungeon-generator",
+  "version": "0.0.0",
+  "description": "A procedural dungeon generator for javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/bin/mocha test"
+  },
+  "author": "Charles Julian Knight",
+  "license": "LGPL",
+  "dependencies": {
+    "coffee-script": "^1.9.1"
+  },
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "grunt": "^0.4.5",
+    "mocha": "^2.2.1"
+  }
+}
