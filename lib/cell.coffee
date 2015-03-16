@@ -14,8 +14,4 @@ module.exports = class Cell
 
   deadEndDirection: ->
     return false unless @isDeadEnd()
-
-    # return 'north' if @directions['north'] is 'empty'
-    # return 'south' if @directions['south'] is 'empty'
-    # return 'east' if @directions['east'] is 'empty'
-    # return 'west' if @directions['west'] is 'empty'
+    (dir for type in (types for dir,types of @directions) when type is 'empty')[0]
