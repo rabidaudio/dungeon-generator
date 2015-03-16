@@ -8,7 +8,7 @@ module.exports = class Map
 
   getCell: (x, y)-> cells.get x, y
 
-  setCell: (x, y, val) -> cells.set x, y, new Cell val
+  setCell: (x, y, val) -> cells.set x, y, new Cell val if @inBounds x, y
 
   clearCell: (x,y) -> @setCell x, y, undefined
 
