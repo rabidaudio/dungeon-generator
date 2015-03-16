@@ -12,7 +12,9 @@ module.exports = class Map
 
   clearCell: (x,y) -> @setCell x, y, undefined
 
-  cellLocations: -> cells.coordsAt(index) for cell, index in cells.data
+  # cellLocations: -> cells.coordsAt(index) for cell, index in cells.data
+  deadEndLocations: -> cells.coordsAt(index) for cell, index in cells.data when cell.isDeadEnd()
+  corridorLocations: -> cells.coordsAt(index) for cell, index in cells.data when cell.corridor?
 
   bounds: -> [@width -1, @height -1]
 
@@ -26,7 +28,11 @@ module.exports = class Map
       when 'east'  then return [x+1, y]
       else return false
 
+  getAdjacentCell: (x, y, direction) ->
+    [nx, ny] = @getAdjacent x, y, direction
+    @getCell nx, ny
+
   hasAdjacent: (x, y, direction) ->
     return false if !@inBounds x,y
-    [nx, ny] = @getAdjacent(x, y, direction)
+    [nx, ny] = @getAdjacent x, y, direction
     return @inBounds nx, ny

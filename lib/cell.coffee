@@ -1,17 +1,30 @@
-DIRECTIONS = ['north', 'south', 'east', 'west']
-TYPES = ['empty', 'wall', 'door']
+# TYPES = ['empty', 'wall', 'door']
 
 module.exports = class Cell
-  constructor: (@directions={}) ->
-    @directions[direction] or= 'empty' for direction in DIRECTIONS
+
+  constructor: (d={}, corridor=false) ->
+    @edges = d or {}
+    @edges[direction] or= 'empty' for direction in ['north', 'south', 'east', 'west']
 
   isDeadEnd: -> @wallCount() is 3
 
   wallCount: -> 
     walls = 0
-    (walls++ if type is 'wall') for key, type of @directions
+    (walls++ if type is 'wall') for key, type of @edges
     walls
 
   deadEndDirection: ->
     return false unless @isDeadEnd()
-    (dir for type in (types for dir,types of @directions) when type is 'empty')[0]
+    (dir for type in (types for dir,types of @edges) when type is 'empty')[0]
+
+  set: (direction, type) ->
+    directions[direction] = type
+
+  setNorth: (type) ->
+    @set 'north', type
+  setSouth: (type) ->
+    @set 'south', type
+  setEast: (type) ->
+    @set 'east', type
+  setWest: (type) ->
+    @set 'west', type
