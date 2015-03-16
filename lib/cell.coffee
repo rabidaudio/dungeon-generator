@@ -2,7 +2,7 @@ DIRECTIONS = ['north', 'south', 'east', 'west']
 TYPES = ['empty', 'wall', 'door']
 
 module.exports = class Cell
-  constructor: (@directions={}, @isCorridor=false) ->
+  constructor: (@directions={}) ->
     @directions[direction] or= 'empty' for direction in DIRECTIONS
 
   isDeadEnd: -> @wallCount() is 3

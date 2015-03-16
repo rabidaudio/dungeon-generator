@@ -1,15 +1,20 @@
 ArrayGrid = require 'array-grid'
+Cell = require './cell'
 
 module.exports = class Map
-  cells = []
+  cells = undefined
   constructor: (@width, @height) ->
     cells = new ArrayGrid [], [@width, @height]
 
   getCell: (x, y)-> cells.get x, y
 
-  setCell: (x, y, val) -> cells.set x, y, val
+  setCell: (x, y, val) -> cells.set x, y, new Cell val
 
-  bounds: -> [@width, @height]
+  clearCell: (x,y) -> @setCell x, y, undefined
+
+  cellLocations: -> cells.coordsAt(index) for cell, index in cells.data
+
+  bounds: -> [@width -1, @height -1]
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >=0 and y < @height
 
