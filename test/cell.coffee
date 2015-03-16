@@ -20,3 +20,12 @@ describe 'Cell', ->
     expect(c.isDeadEnd()).to.be.true
     c = new DG.Cell {north: 'wall', east: 'empty', west: 'empty', south: 'empty'}
     expect(c.isDeadEnd()).to.be.false
+
+  it 'should know what direction a dead end is', ->
+    c = new DG.Cell {north: 'wall', east: 'wall', west: 'wall', south: 'empty'}
+    console.log c.deadEndDirection()
+    expect(c.deadEndDirection()).to.equal 'south'
+
+  it 'shouldn\'t give a direction for non-deadends ', ->
+    c = new DG.Cell {north: 'wall', east: 'empty', west: 'empty', south: 'empty'}
+    expect(c.deadEndDirection()).to.be.false

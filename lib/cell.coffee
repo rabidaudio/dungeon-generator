@@ -9,10 +9,13 @@ module.exports = class Cell
 
   wallCount: -> 
     walls = 0
-    for key, type of @directions
-      walls++ if type is 'wall'
+    (walls++ if type is 'wall') for key, type of @directions
     walls
 
   deadEndDirection: ->
     return false unless @isDeadEnd()
-    direction for direction of DIRECTIONS when @directions[direction] is not 'empty'
+
+    # return 'north' if @directions['north'] is 'empty'
+    # return 'south' if @directions['south'] is 'empty'
+    # return 'east' if @directions['east'] is 'empty'
+    # return 'west' if @directions['west'] is 'empty'
