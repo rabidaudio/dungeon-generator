@@ -1,5 +1,5 @@
 
 module.exports = 
-  Cell: require './cell',
+  Cell: require './cell'
   directionTypes: require './directionTypes'
   sideTypes: require './sideTypes'
