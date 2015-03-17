@@ -1,3 +1,4 @@
+DIRECTIONS = require './directions'
 ArrayGrid = require 'array-grid'
 Cell = require './cell'
 _ = require 'lodash'
@@ -33,10 +34,10 @@ class Map
 
   getAdjacent: (x, y, direction) ->
     switch direction
-      when 'north' then return [x, y-1]
-      when 'south' then return [x, y+1]
-      when 'west'  then return [x-1, y]
-      when 'east'  then return [x+1, y]
+      when DIRECTIONS.NORTH then return [x, y-1]
+      when DIRECTIONS.SOUTH then return [x, y+1]
+      when DIRECTIONS.WEST  then return [x-1, y]
+      when DIRECTIONS.EAST  then return [x+1, y]
       else throw 'Invalid direction: #{direction}'
 
   getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...

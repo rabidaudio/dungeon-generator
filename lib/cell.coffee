@@ -1,5 +1,4 @@
-# TYPES = ['empty', 'wall', 'door']
-DIRECTONS = ['north', 'south', 'east', 'west']
+DIRECTONS = require './directions'
 
 module.exports = class Cell
 
@@ -31,14 +30,5 @@ module.exports = class Cell
   update: (d) ->
     for direction in DIRECTONS
       this[direction] = d[direction] if d[direction]?
-
-
-  setNorth: (type) -> @set 'north', type
-
-  setSouth: (type) -> @set 'south', type
-
-  setEast: (type) -> @set 'east', type
-
-  setWest: (type) ->@set 'west', type
 
   # isCorridor: -> @corridor

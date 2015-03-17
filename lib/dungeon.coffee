@@ -1,4 +1,4 @@
-
+DIRECTIONS = require './directions'
 Map = require './map'
 Room = require './room'
 Cell = require './cell'
@@ -35,13 +35,13 @@ module.exports = class Dungeon extends Map
 
 
   roomPlacementScore: (room, x, y) ->
-    return -1*Infinity if room.width > (@width - x) or room.height > (@height - y) # won't fit
+    return -Infinity if room.width > (@width - x) or room.height > (@height - y) # won't fit
     score = 0
     room.forAllLocations (roomX, roomY, c)=>
       dX = x + roomX
       dY = y + roomY
       #Add 1 point for each adjacent corridor to the cell
-      (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in ['north', 'south', 'east', 'west']
+      (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in DIRECTIONS
       dCell = @getCell(dX, dY)
       if dCell?
         #Add 3 points if the cell overlaps an existing corridor
