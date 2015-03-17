@@ -2,7 +2,7 @@
 
 module.exports = class Cell
 
-  constructor: (d={}, corridor=false) ->
+  constructor: (d={}, @corridor=false) ->
     @edges = d or {}
     @edges[direction] or= 'empty' for direction in ['north', 'south', 'east', 'west']
 

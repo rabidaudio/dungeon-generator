@@ -23,7 +23,6 @@ describe 'Cell', ->
 
   it 'should know what direction a dead end is', ->
     c = new Cell {north: 'wall', east: 'wall', west: 'wall', south: 'empty'}
-    console.log c.deadEndDirection()
     expect(c.deadEndDirection()).to.equal 'south'
 
   it 'shouldn\'t give a direction for non-deadends ', ->

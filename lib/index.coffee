@@ -1,3 +1,4 @@
 
-module.exports = 
-  Cell: require './cell'
+DungeonGenerator = require './dungeon_generator'
+
+module.exports = DungeonGenerator
