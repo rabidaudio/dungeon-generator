@@ -18,6 +18,15 @@ class Map
     throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y
     @cells.set(x, y, c)
 
+  getSide: (direction) ->
+    sides = []
+    switch direction
+      when DIRECTIONS.NORTH then sides.push([x, 0])         for x in [0..@width-1]
+      when DIRECTIONS.SOUTH then sides.push([x, @height-1]) for x in [0..@width-1]
+      when DIRECTIONS.EAST  then sides.push([@width-1, y])  for y in [0..@height-1]
+      when DIRECTIONS.WEST  then sides.push([0, y])         for y in [0..@height-1]
+      else throw 'Invalid direction: #{direction}'
+    sides
 
   forAllLocations: (cb) ->
     for y in [0..@height-1]

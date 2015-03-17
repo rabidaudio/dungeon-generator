@@ -55,6 +55,18 @@ describe 'Map', ->
     m.updateCell 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
     expect( m.deadEndLocations() ).to.deep.equal [[0,3]]
 
+  it "should allow us to get an entire side horizontally", ->
+    m = new Map 3,3
+    expect(m.getSide('north')).to.have.length 3
+    expect(m.getSide('north')).to.include.something.that.deep.equals [0,0]
+    expect(m.getSide('north')).not.to.include.something.that.deep.equals [2,2]
+
+  it "should allow us to get an entire side vertically", ->
+    m = new Map 3,3
+    expect(m.getSide('east')).to.have.length 3
+    expect(m.getSide('east')).to.include.something.that.deep.equals [2,1]
+    expect(m.getSide('east')).not.to.include.something.that.deep.equals [0,0]
+
 describe 'Map.overlap', ->
   r1 = new Map 1, 1
   r2 = new Map 2, 1
