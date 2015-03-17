@@ -1,6 +1,7 @@
 
 Map = require './map'
 Room = require './room'
+Cell = require './cell'
 MTRandom = new require('./random')(8675309)
 
 module.exports = class Dungeon extends Map
@@ -13,10 +14,10 @@ module.exports = class Dungeon extends Map
   addRoom: (room, x, y) ->
     # @rooms.push room
     room.forAllLocations (rx,ry,c) =>
-      @setCell x+rx, y+ry, c.edges
+      @setCell x+rx, y+ry, c
 
   adjacentIsCorridor: (x, y, direction) ->
-    @getAdjacentCell(x,y,direction)?.corridor?
+    @getAdjacentCell(x,y,direction)?.corridor
 
   createSide: (x, y, direction, type) ->
     throw "Can't place a cell at #{x}, #{y}: Out of bounds" if not @inBounds x,y
@@ -41,12 +42,12 @@ module.exports = class Dungeon extends Map
       dY = y + roomY
       #Add 1 point for each adjacent corridor to the cell
       (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in ['north', 'south', 'east', 'west']
-      dCell = @getCell(dx, dy)
+      dCell = @getCell(dX, dY)
       if dCell?
         #Add 3 points if the cell overlaps an existing corridor
-        score-=3 if dCell.corridor?
+        score-=3 if dCell.corridor
         # Add 100 points if the cell overlaps any existing room cells
-        score-=100 if not dCell.corridor?
+        score-=100 if not dCell.corridor
     score
 
   generateRooms: (number, minWidth, maxWidth, minHeight, maxHeight) ->

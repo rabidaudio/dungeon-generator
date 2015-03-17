@@ -15,24 +15,24 @@ describe 'Map', ->
     expect(m.inBounds(3,3)).to.be.false
 
   it "should allow you to set cells within the boundaries", ->
-    m.setCell(0,0, {north:'wall'})
-    m.setCell(2,3, {east: 'door'})
-    expect(m.getCell(0,0).edges).to.have.property 'north', 'wall'
-    expect(m.getCell(2,3).edges).to.have.property 'east', 'door'
+    m.updateCell(0,0, {north:'wall'})
+    m.updateCell(2,3, {east: 'door'})
+    expect(m.getCell(0,0)).to.have.property 'north', 'wall'
+    expect(m.getCell(2,3)).to.have.property 'east', 'door'
 
   it "should *only* allow you to set cells within the boundaries", ->
-    expect(()-> m.setCell(-1,0, {north:'wall'})).to.throw /Out of Bounds/
-    expect(()-> m.setCell(3,3, {east: 'door'})).to.throw /Out of Bounds/
+    expect(()-> m.updateCell(-1,0, {north:'wall'})).to.throw /Out of Bounds/
+    expect(()-> m.updateCell(3,3, {east: 'door'})).to.throw /Out of Bounds/
 
   it "should let you read from cells", ->
-    expect(m.getCell(0,0).edges).to.have.property 'north', 'wall'
+    expect(m.getCell(0,0)).to.have.property 'north', 'wall'
 
   it "should let you update cells", ->
-    m.setCell 1,1, {south: 'door', west: 'wall'}
-    expect(m.getCell(1,1).edges).to.have.property 'north', 'empty'
-    expect(m.getCell(1,1).edges).to.have.property 'south', 'door'
-    expect(m.getCell(1,1).edges).to.have.property 'east', 'empty'
-    expect(m.getCell(1,1).edges).to.have.property 'west', 'wall'
+    m.updateCell 1,1, {south: 'door', west: 'wall'}
+    expect(m.getCell(1,1)).to.have.property 'north', 'empty'
+    expect(m.getCell(1,1)).to.have.property 'south', 'door'
+    expect(m.getCell(1,1)).to.have.property 'east', 'empty'
+    expect(m.getCell(1,1)).to.have.property 'west', 'wall'
 
   it "should be able to find adjacent cell locations", ->
     expect( m.getAdjacent(0,0, 'east') ).to.deep.equal [1, 0]
@@ -52,7 +52,7 @@ describe 'Map', ->
   it "should find dead ends", ->
     m = new Map 1,4
     expect( m.deadEndLocations() ).to.be.empty
-    m.setCell 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
+    m.updateCell 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
     expect( m.deadEndLocations() ).to.deep.equal [[0,3]]
 
 describe 'Map.overlap', ->

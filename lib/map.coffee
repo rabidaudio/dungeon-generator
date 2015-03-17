@@ -5,25 +5,29 @@ _ = require 'lodash'
 class Map
   constructor: (@width, @height) ->
     @cells = new ArrayGrid [], [@width, @height]
-    # @cells.data.push new Cell for c in [1..@width*@height]
 
   getCell: (x, y)-> @cells.get x, y
 
-  setCell: (x, y, val) ->
+  updateCell: (x, y, val) ->
     throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y
     cell = @cells.get(x, y)
     if cell? then cell.update(val) else @cells.set(x,y, new Cell(val))
+
+  setCell: (x, y, c) ->
+    throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y
+    @cells.set(x, y, c)
+
 
   forAllLocations: (cb) ->
     for y in [0..@height-1]
       for x in [0..@width-1]
         cb x, y, @getCell(x,y)
 
-  nonEmptyLocations: -> @cells.coordsAt(index) for cell, index in @cells.data
+  nonEmptyLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?
 
   deadEndLocations:  -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.isDeadEnd()
 
-  corridorLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.corridor?
+  corridorLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.corridor
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >=0 and y < @height
 
@@ -46,7 +50,7 @@ class Map
       c.south = 'wall' if y is @height - 1
       c.west  = 'wall' if x is 0
       c.east  = 'wall' if x is @width - 1
-      @setCell x, y, c
+      @updateCell x, y, c
 
   toString: ->
     map = ""
@@ -54,7 +58,14 @@ class Map
       for x in [0..@width-1]
         cell = @getCell x, y
         if cell?
-          if cell.isEmpty() then map+= " " else map+= "X"
+          if cell.isEmpty()
+            map+= " "
+          else if cell.corridor
+            map+="C"
+          else if cell.doorCount() > 0
+            map+="D"
+          else
+            map+= "X"
         else
           map+="?"
       map+="\n"
@@ -73,11 +84,5 @@ Map.overlap = (mapA, mapB, x, y) ->
     for cellB in cellsB
       overlaps++ if _.isEqual cellA, cellB
   overlaps
-
-
-
-# Map.overlap = (roomA, xA, yA, roomB, xB, yB) ->
-  # ( xB < xA+roomA.width and xA < xB+roomB.width ) and ( yB < yA+roomA.height and yA < yB+roomB.height )
-
 
 module.exports = Map
