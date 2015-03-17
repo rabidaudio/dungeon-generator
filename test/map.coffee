@@ -28,11 +28,6 @@ describe 'Map', ->
     expect(m.getCell(0,0).edges).to.have.property 'north', 'wall'
 
   it "should let you update cells", ->
-    expect(m.getCell(1,1).edges).to.have.property 'north', 'empty'
-    expect(m.getCell(1,1).edges).to.have.property 'south', 'empty'
-    expect(m.getCell(1,1).edges).to.have.property 'east', 'empty'
-    expect(m.getCell(1,1).edges).to.have.property 'west', 'empty'
-
     m.setCell 1,1, {south: 'door', west: 'wall'}
     expect(m.getCell(1,1).edges).to.have.property 'north', 'empty'
     expect(m.getCell(1,1).edges).to.have.property 'south', 'door'
@@ -51,11 +46,28 @@ describe 'Map', ->
     expect( m.getAdjacentCell(0,0, 'east') ).to.deep.equal m.getCell(1, 0)
 
   it "should find corridor cells", ->
-    m.getCell(2,1).corridor = true
-    expect(m.corridorLocations()).to.include.something.that.deep.equals [2,1]
+    m.getCell(1,1).corridor = true
+    expect(m.corridorLocations()).to.include.something.that.deep.equals [1,1]
 
   it "should find dead ends", ->
     m = new Map 1,4
     expect( m.deadEndLocations() ).to.be.empty
     m.setCell 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
     expect( m.deadEndLocations() ).to.deep.equal [[0,3]]
+
+describe 'Map.overlap', ->
+  r1 = new Map 1, 1
+  r2 = new Map 2, 1
+  r3 = new Map 4, 4
+  r1.populate()
+  r2.populate()
+  r3.populate()
+  empty = new Map 10, 10
+  it "should know if two maps don't overlap", ->
+    expect( Map.overlap(r1,empty,0,0) ).to.equal 0
+
+  it "should know if two maps do overlap", ->
+    expect( Map.overlap(r1, r2, 0, 0) ).to.be.greaterThan 0
+
+  it "should correctly count the number of overlapping rooms", ->
+    expect( Map.overlap(r2, r3, 0, 0) ).to.equal 2
