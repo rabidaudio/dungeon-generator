@@ -7,7 +7,9 @@ class Map
   constructor: (@width, @height) ->
     @cells = new ArrayGrid [], [@width, @height]
 
-  getCell: (x, y)-> @cells.get x, y
+  getCell: (x, y)->
+    throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y
+    @cells.get x, y
 
   updateCell: (x, y, val) ->
     throw "Out of Bounds: #{x}, #{y}" if not @inBounds x, y

@@ -25,7 +25,7 @@ module.exports = class Cell
     for d in DIRECTONS
       return d if this[d] is 'empty'
 
-  set: (direction, type) -> this[direction] = type if direction in DIRECTONS
+  # set: (direction, type) -> this[direction] = type if direction in DIRECTONS
 
   update: (d) ->
     for direction in DIRECTONS

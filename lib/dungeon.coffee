@@ -24,8 +24,12 @@ module.exports = class Dungeon extends Map
 
   createSide: (x, y, direction, type) ->
     throw "Can't place a cell at #{x}, #{y}: Out of bounds" if not @inBounds(x,y)
-    @getCell(x,y).set direction, type
-    @getAdjacentCell(x,y,direction).set?(DIRECTIONS.opposite(direction), type) if @hasAdjacent(x,y,direction)
+    current = {}
+    current[direction] = type
+    @updateCell(x,y,current)
+    opposite = {}
+    opposite[DIRECTIONS.opposite(direction)] = type
+    @updateCell(@getAdjacent(x,y,direction)..., opposite) if @hasAdjacent(x,y,direction)
 
   createCorridor: (x, y, direction) ->
     @createSide x,y, direction, 'empty'
