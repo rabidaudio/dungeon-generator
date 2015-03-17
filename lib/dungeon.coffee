@@ -2,14 +2,15 @@ DIRECTIONS = require './directions'
 Map = require './map'
 Room = require './room'
 Cell = require './cell'
-MTRandom = new require('./random')(8675309)
+MTRandom = require('./random')
 
 module.exports = class Dungeon extends Map
 
   rooms: []
 
-  constructor: (width, height) ->
-    super
+  constructor: (width, height, seed=null) ->
+    @Random = new MTRandom seed
+    super(width, height)
 
   addRoom: (room, x, y) ->
     room.forAllLocations (rx,ry,c) =>
@@ -22,9 +23,9 @@ module.exports = class Dungeon extends Map
     @getAdjacentCell(x,y,direction)?.corridor
 
   createSide: (x, y, direction, type) ->
-    throw "Can't place a cell at #{x}, #{y}: Out of bounds" if not (@inBounds(x,y) and @hasAdjacent(x,y,direction))
+    throw "Can't place a cell at #{x}, #{y}: Out of bounds" if not @inBounds(x,y)
     @getCell(x,y).set direction, type
-    @getAdjacentCell(x,y,direction).set DIRECTIONS.opposite(direction), type
+    @getAdjacentCell(x,y,direction).set?(DIRECTIONS.opposite(direction), type) if @hasAdjacent(x,y,direction)
 
   createCorridor: (x, y, direction) ->
     @createSide x,y, direction, 'empty'
@@ -53,7 +54,7 @@ module.exports = class Dungeon extends Map
 
   generateRooms: (number, minWidth, maxWidth, minHeight, maxHeight) ->
     for count in [0..number]
-      room = new Room MTRandom.next(minWidth, maxWidth), MTRandom.next(minHeight, maxHeight)
+      room = new Room @Random.next(minWidth, maxWidth), @Random.next(minHeight, maxHeight)
       bestScore = -Infinity
       bestSpot = undefined
       @forAllLocations (dX, dY) =>
@@ -62,9 +63,9 @@ module.exports = class Dungeon extends Map
           bestScore = newScore
           bestSpot = [dX, dY]
       if bestSpot?
-        room.forAllLocations (rX,rY,c)->
-          @createDoor(rX, rY, DIRECTIONS.WEST)  if rX is 0 and not room.hasDoorOnSide DIRECTIONS.WEST
-          @createDoor(rX, rY, DIRECTIONS.EAST)  if rX is room.width-1 and not room.hasDoorOnSide DIRECTIONS.EAST
-          @createDoor(rX, rY, DIRECTIONS.NORTH) if rY is 0 and not room.hasDoorOnSide DIRECTIONS.NORTH
-          @createDoor(rX, rY, DIRECTIONS.SOUTH) if rY is room.height-1 and not room.hasDoorOnSide DIRECTIONS.SOUTH
+        # room.forAllLocations (rX,rY,c) =>
+        #   @createDoor(rX, rY, DIRECTIONS.WEST)  if rX is 0 and not room.hasDoorOnSide DIRECTIONS.WEST
+        #   @createDoor(rX, rY, DIRECTIONS.EAST)  if rX is room.width-1 and not room.hasDoorOnSide DIRECTIONS.EAST
+        #   @createDoor(rX, rY, DIRECTIONS.NORTH) if rY is 0 and not room.hasDoorOnSide DIRECTIONS.NORTH
+        #   @createDoor(rX, rY, DIRECTIONS.SOUTH) if rY is room.height-1 and not room.hasDoorOnSide DIRECTIONS.SOUTH
         @addRoom room, bestSpot...
