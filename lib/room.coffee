@@ -1,5 +1,5 @@
-
 Map = require './map'
+TYPES = require './types'
 
 module.exports = class Room extends Map
   constructor: (width, height) ->
@@ -17,10 +17,10 @@ module.exports = class Room extends Map
   makeWalls: ->
     @forAllLocations (x,y) =>
       c = {}
-      c.north = 'wall' if y is 0
-      c.south = 'wall' if y is @height - 1
-      c.west  = 'wall' if x is 0
-      c.east  = 'wall' if x is @width - 1
+      c.north = TYPES.WALL if y is 0
+      c.south = TYPES.WALL if y is @height - 1
+      c.west  = TYPES.WALL if x is 0
+      c.east  = TYPES.WALL if x is @width - 1
       @updateCell x, y, c
 
   makeCorridor: -> @forAllLocations (x,y,c) -> c.corridor = true

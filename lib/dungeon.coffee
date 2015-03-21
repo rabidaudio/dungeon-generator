@@ -1,4 +1,5 @@
 DIRECTIONS = require './directions'
+TYPES = require './types'
 Map = require './map'
 Room = require './room'
 Cell = require './cell'
@@ -26,8 +27,8 @@ module.exports = class Dungeon extends Map
   createDoor: (x, y, direction) ->
     throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
     if @hasAdjacent(x,y,direction)
-      @setSide x, y, direction, 'door'
-      @setSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), 'door'
+      @setSide x, y, direction, TYPES.DOOR
+      @setSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
 
@@ -99,4 +100,3 @@ module.exports = class Dungeon extends Map
 
   allCellsVisited: -> @visited.length is @width * @height
 
-  

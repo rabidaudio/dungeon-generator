@@ -14,4 +14,5 @@ generate = (@width=25, @height=25, @zigzagyness=30, @sparseness=70, @undeadendyn
 
 
 generate.DIRECTIONS = require './directions'
+generate.TYPES = require './types'
 module.exports = generate

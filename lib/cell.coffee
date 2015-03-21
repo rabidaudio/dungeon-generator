@@ -1,11 +1,12 @@
 DIRECTONS = require './directions'
+TYPES = require './types'
 
 module.exports = class Cell
 
   constructor: (d=null, @corridor=false) ->
     if d?
       for direction in DIRECTONS
-        this[direction] = d[direction] or 'empty'
+        this[direction] = d[direction] or TYPES.EMPTY
       @blank = false
     else
       @blank = true
@@ -14,12 +15,12 @@ module.exports = class Cell
 
   wallCount: -> 
     walls = 0
-    (walls++ if this[d] is 'wall') for d in DIRECTONS
+    (walls++ if this[d] is TYPES.WALL) for d in DIRECTONS
     walls
 
   doorCount: ->
     doors = 0
-    (doors++ if this[d] is 'door') for d in DIRECTONS
+    (doors++ if this[d] is TYPES.DOOR) for d in DIRECTONS
     doors
 
   isEmpty: -> @wallCount()+@doorCount() is 0
@@ -27,7 +28,7 @@ module.exports = class Cell
   deadEndDirection: ->
     return false unless @isDeadEnd()
     for d in DIRECTONS
-      return d if this[d] is 'empty'
+      return d if this[d] is TYPES.EMPTY
 
   # set: (direction, type) -> this[direction] = type if direction in DIRECTONS
 
@@ -35,7 +36,7 @@ module.exports = class Cell
 
   update: (d) ->
     for direction in DIRECTONS
-      this[direction] = if d[direction]? then d[direction] else 'empty'
+      this[direction] = if d[direction]? then d[direction] else TYPES.EMPTY
     @blank = false
 
   visit: -> @visited = true
