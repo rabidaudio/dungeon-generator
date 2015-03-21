@@ -10,7 +10,8 @@ generate = (@width=25, @height=25, @zigzagyness=30, @sparseness=70, @undeadendyn
   dungeon.generateRooms()
   dungeon.addDoors()
 
-  dungeon
+  return dungeon
+
 
 generate.DIRECTIONS = require './directions'
 module.exports = generate

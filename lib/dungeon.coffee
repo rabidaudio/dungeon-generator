@@ -2,7 +2,7 @@ DIRECTIONS = require './directions'
 Map = require './map'
 Room = require './room'
 Cell = require './cell'
-MTRandom = require('./random')
+MTRandom = require './random'
 
 module.exports = class Dungeon extends Map
 
@@ -21,7 +21,7 @@ module.exports = class Dungeon extends Map
     @rooms.push room
 
   adjacentIsCorridor: (x, y, direction) ->
-    if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction)?.corridor else false
+    if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
   createDoor: (x, y, direction) ->
     throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
@@ -98,3 +98,5 @@ module.exports = class Dungeon extends Map
     @visited[@Random.next(0, @visited.length-1)]
 
   allCellsVisited: -> @visited.length is @width * @height
+
+  
