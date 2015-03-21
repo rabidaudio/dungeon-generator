@@ -11,7 +11,7 @@
   "dependencies": {
     "array-grid": "^1.4.0",
     "coffee-script": "^1.9.1",
-    "lodash": "^3.5.0",
+    "lodash.isequal": "^3.0.0",
     "random-js": "^1.0.4"
   },
   "devDependencies": {

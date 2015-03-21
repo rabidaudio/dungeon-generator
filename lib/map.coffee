@@ -1,7 +1,7 @@
 DIRECTIONS = require './directions'
 ArrayGrid = require 'array-grid'
 Cell = require './cell'
-_ = require 'lodash'
+deepEqual = require 'lodash.isequal'
 
 class Map
   constructor: (@width, @height) ->
@@ -83,16 +83,12 @@ class Map
       for x in [0..@width-1]
         cell = @getCell x, y
         if cell?
-          if cell.isEmpty()
-            map+= " "
-          else if cell.corridor
-            map+="C"
-          else if cell.doorCount() > 0
-            map+="D"
+          if cell.isEmpty() then  map+= " "
+          else if cell.corridor then map+="C"
+          else if cell.doorCount() > 0 then map+="D"
           else
             map+= "X"
-        else
-          map+="?"
+        else map+="?"
       map+="\n"
     map
 
@@ -107,7 +103,7 @@ Map.overlap = (mapA, mapB, x, y) ->
     cellA[0]+=x
     cellA[1]+=y
     for cellB in cellsB
-      overlaps++ if _.isEqual cellA, cellB
+      overlaps++ if deepEqual cellA, cellB
   overlaps
 
 module.exports = Map
