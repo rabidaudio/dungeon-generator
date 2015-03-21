@@ -1,4 +1,16 @@
 
-DungeonGenerator = require './dungeon_generator'
+Dungeon = require './dungeon'
 
-module.exports = DungeonGenerator
+generate = (@width=25, @height=25, @zigzagyness=30, @sparseness=70, @undeadendyness=50, @seed=null) ->
+  dungeon = new Dungeon @width, @height, seed
+
+  dungeon.createDenseMaze()
+  dungeon.parsifyMaze()
+  dungeon.removeDeadEnds()
+  dungeon.generateRooms()
+  dungeon.addDoors()
+
+  dungeon
+
+generate.DIRECTIONS = require './directions'
+module.exports = generate

@@ -6,6 +6,7 @@ deepEqual = require 'lodash.isequal'
 class Map
   constructor: (@width, @height) ->
     @cells = new ArrayGrid [], [@width, @height]
+    @forAllLocations (x,y) => @cells.set(x, y, new Cell() )
 
   getCell: (x, y)->
     throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
@@ -13,8 +14,7 @@ class Map
 
   updateCell: (x, y, val) ->
     throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
-    cell = @cells.get(x, y)
-    if cell? then cell.update(val) else @cells.set(x,y, new Cell(val))
+    @cells.get(x, y).update(val)
 
   setCell: (x, y, c) ->
     throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
@@ -40,7 +40,7 @@ class Map
       for x in [0..@width-1]
         cb x, y, @getCell(x,y)
 
-  nonEmptyLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?
+  nonEmptyLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.notBlank()
 
   deadEndLocations:  -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.isDeadEnd()
 
@@ -58,7 +58,8 @@ class Map
 
   getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...
 
-  hasAdjacent: (x, y, direction) -> @inBounds(@getAdjacent(x, y, direction)...) and @getAdjacentCell(x,y,direction)?
+  hasAdjacent: (x, y, direction) ->
+    @inBounds(@getAdjacent(x, y, direction)...) and @getAdjacentCell(x,y,direction).notBlank()
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
@@ -68,27 +69,17 @@ class Map
       when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
       else throw new Error('Invalid direction: #{direction}')
 
-  populate: ->
-    @forAllLocations (x,y) =>
-      c = {}
-      c.north = 'wall' if y is 0
-      c.south = 'wall' if y is @height - 1
-      c.west  = 'wall' if x is 0
-      c.east  = 'wall' if x is @width - 1
-      @updateCell x, y, c
-
   toString: ->
     map = ""
     for y in [0..@height-1]
       for x in [0..@width-1]
         cell = @getCell x, y
-        if cell?
+        if cell.notBlank()
           if cell.isEmpty() then  map+= " "
-          else if cell.corridor then map+="C"
-          else if cell.doorCount() > 0 then map+="D"
-          else
-            map+= "X"
-        else map+="?"
+          else if cell.corridor then map+="X"
+          else if cell.doorCount() > 0 then map+='\\'
+          else map+= "#"
+        else map+="."
       map+="\n"
     map
 

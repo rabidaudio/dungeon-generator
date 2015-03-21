@@ -2,9 +2,13 @@ DIRECTONS = require './directions'
 
 module.exports = class Cell
 
-  constructor: (d={}, @corridor=false) ->
-    for direction in DIRECTONS
-      this[direction] = d[direction] or 'empty' 
+  constructor: (d=null, @corridor=false) ->
+    if d?
+      for direction in DIRECTONS
+        this[direction] = d[direction] or 'empty'
+      @blank = false
+    else
+      @blank = true
 
   isDeadEnd: -> @wallCount() is 3
 
@@ -27,8 +31,13 @@ module.exports = class Cell
 
   # set: (direction, type) -> this[direction] = type if direction in DIRECTONS
 
+  notBlank: -> not @blank
+
   update: (d) ->
     for direction in DIRECTONS
-      this[direction] = d[direction] if d[direction]?
+      this[direction] = if d[direction]? then d[direction] else 'empty'
+    @blank = false
 
-  # isCorridor: -> @corridor
+  visit: -> @visited = true
+
+  clearVisits: -> @visited = false

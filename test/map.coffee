@@ -4,6 +4,7 @@ expect = chai.expect
 chai.use(require('chai-things'))
 
 Map = require '../lib/map'
+Room = require '../lib/room'
 
 describe 'Map', ->
   m = new Map 3,4
@@ -68,12 +69,9 @@ describe 'Map', ->
     expect(m.getSide('east')).not.to.include.something.that.deep.equals [0,0]
 
 describe 'Map.overlap', ->
-  r1 = new Map 1, 1
-  r2 = new Map 2, 1
-  r3 = new Map 4, 4
-  r1.populate()
-  r2.populate()
-  r3.populate()
+  r1 = new Room 1, 1
+  r2 = new Room 2, 1
+  r3 = new Room 4, 4
   empty = new Map 10, 10
   it "should know if two maps don't overlap", ->
     expect( Map.overlap(r1,empty,0,0) ).to.equal 0
