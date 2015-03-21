@@ -30,6 +30,11 @@ class Map
       else throw new Error('Invalid direction: #{direction}')
     sides
 
+  setSide: (x,y,direction, value) ->
+    data = {}
+    data[direction] = value
+    @updateCell(x,y,data)
+
   forAllLocations: (cb) ->
     for y in [0..@height-1]
       for x in [0..@width-1]
