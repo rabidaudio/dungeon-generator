@@ -27,7 +27,7 @@ class Map
       when DIRECTIONS.SOUTH then sides.push([x, @height-1]) for x in [0..@width-1]
       when DIRECTIONS.EAST  then sides.push([@width-1, y])  for y in [0..@height-1]
       when DIRECTIONS.WEST  then sides.push([0, y])         for y in [0..@height-1]
-      else throw new Error('Invalid direction: #{direction}')
+      else throw new Error("Invalid direction: #{direction}")
     sides
 
   setSide: (x,y,direction, value) ->
@@ -54,7 +54,7 @@ class Map
       when DIRECTIONS.SOUTH then return [x, y+1]
       when DIRECTIONS.WEST  then return [x-1, y]
       when DIRECTIONS.EAST  then return [x+1, y]
-      else throw new Error('Invalid direction: #{direction}')
+      else throw new Error("Invalid direction: #{direction}")
 
   getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...
 
@@ -67,7 +67,7 @@ class Map
       when DIRECTIONS.SOUTH then return [ generator.next(0, @width-1), @height-1 ]
       when DIRECTIONS.WEST  then return [ 0, generator.next(0, @height-1) ]
       when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
-      else throw new Error('Invalid direction: #{direction}')
+      else throw new Error("Invalid direction: #{direction}")
 
   toString: ->
     map = ""
