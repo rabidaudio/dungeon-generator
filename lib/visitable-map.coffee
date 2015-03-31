@@ -7,7 +7,7 @@ module.exports = class VisitableMap extends Map
   constructor: (width, height, seed=null) ->
     @visited = 0
     @Random = new MTRandom seed
-    super(width, height)
+    super(width, height, null)
 
   unvisitedLocations:-> @coordsAt(index) for cell, index in @data when not cell._visited
 

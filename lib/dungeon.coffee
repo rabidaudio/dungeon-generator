@@ -20,14 +20,16 @@ module.exports = class Dungeon extends VisitableMap
     if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
   createDoor: (x, y, direction) ->
-    throw new Error("Can't add #{direction} door at #{x}, #{y}: Out of Bounds") unless @inBounds(x,y) and @hasAdjacent(x,y,direction)
+    if not @inBounds(x,y) or not @hasAdjacent(x,y,direction)
+      throw new Error("Can't add #{direction} door at #{x}, #{y}: Out of Bounds")
     @setCellSide x, y, direction, TYPES.DOOR
     @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
 
   createCorridor: (x, y, direction) ->
-    throw new Error("Can't edit cell at #{x}, #{y}: Out of Bounds") if not @inBounds(x,y)
+    if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
+      throw new Error("Can't edit cell at #{x}, #{y}: Out of Bounds") 
     @get(x, y).makeCorridor(direction)
-    @getAdjacentCell(x,y,direction).makeCorridor(direction) if @hasAdjacent(x,y,direction)
+    @getAdjacentCell(x,y,direction).makeCorridor(direction)
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
