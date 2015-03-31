@@ -28,8 +28,10 @@ module.exports = class Dungeon extends VisitableMap
   createCorridor: (x, y, direction) ->
     if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
       throw new Error("Can't edit cell at #{x}, #{y}: Out of Bounds") 
-    @get(x, y).makeCorridor(direction)
-    @getAdjacentCell(x,y,direction).makeCorridor(direction)
+    @get(x,y).setSide(direction, TYPES.EMPTY)
+    @getAdjacentCell(x,y,direction).setSide(DIRECTIONS.opposite(direction), TYPES.EMPTY)
+    # @get(x, y).makeCorridor(direction)
+    # @getAdjacentCell(x,y,direction).makeCorridor(direction)
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -75,13 +77,13 @@ module.exports = class Dungeon extends VisitableMap
 
   createDenseMaze: (zigzagyness) ->
     @flagAllCellsAsUnvisited()
+    [x, y] = @pickRandomUnvisitedCell()
+    @visitCell x, y
+    direction = DIRECTIONS.NORTH
     until @allCellsVisited()
-      [x, y] = @pickRandomCell()
-      @visitCell x, y
+      [x, y] = @pickRandomVisitedCell()
       valid = @validWalkDirections(x, y)
-      direction = DIRECTIONS.NORTH
-
-      while valid.length > 0
+      while valid.length > 0 and not @allCellsVisited()
         #change direction if neccessary
         if valid.indexOf(direction) is -1 or @Random.next(0, 100) > zigzagyness
           direction = valid[@Random.next(0, valid.length-1)]
