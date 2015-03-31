@@ -71,6 +71,9 @@ class Map
       when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
       else throw new Error("Invalid direction: #{direction}")
 
+  getCellID: (x,y)-> return x*@width + y
+  getCellCoordinates: (id)-> [Math.floor(id/@width), Math.floor(id % @width)]
+
   toString: ->
     map = ""
     for y in [0..@height-1]

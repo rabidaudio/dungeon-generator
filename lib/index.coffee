@@ -1,15 +1,14 @@
 Dungeon = require './dungeon'
 
-generate = (width=25, height=25, zigzagyness=30, sparseness=70, undeadendyness=50, seed=null) ->
+generate = (width=25, height=25, zigzagyness=30, sparseness=70, deadendRemovalness=50, seed=null) ->
   dungeon = new Dungeon width, height, seed
 
-  dungeon.createDenseMaze(zigzagyness)
+  dungeon
+    .createDenseMaze(zigzagyness)
   # dungeon.parsifyMaze()
   # dungeon.removeDeadEnds()
   # dungeon.generateRooms()
   # dungeon.addDoors()
-
-  return dungeon
 
 
 generate.DIRECTIONS = require './directions'
