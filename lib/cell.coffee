@@ -25,6 +25,15 @@ module.exports = class Cell
 
   isEmpty: -> @wallCount()+@doorCount() is 0
 
+  makeCorridor: (direction) ->
+    switch direction
+      when DIRECTONS.NORTH, DIRECTONS.SOUTH
+        @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
+      when DIRECTONS.NORTH, DIRECTONS.SOUTH
+        @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
+    @corridor = true
+    @blank = false
+
   deadEndDirection: ->
     return false unless @isDeadEnd()
     for d in DIRECTONS

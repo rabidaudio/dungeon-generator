@@ -5,7 +5,7 @@ deepEqual = require 'lodash.isequal'
 
 class Map
   constructor: (@width, @height) ->
-    @cells = new ArrayGrid [], [@width, @height]
+    @cells = new ArrayGrid([], [@width, @height])
     @forAllLocations (x,y) => @cells.set(x, y, new Cell() )
 
   getCell: (x, y)->
@@ -77,8 +77,7 @@ class Map
       for x in [0..@width-1]
         cell = @getCell x, y
         if cell.notBlank()
-          if cell.visited then map+="v" #TODO remove
-          else if cell.isEmpty() then  map+= " "
+          if cell.isEmpty() then  map+= " "
           else if cell.corridor then map+="X"
           else if cell.doorCount() > 0 then map+='\\'
           else map+= "#"

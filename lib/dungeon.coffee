@@ -4,14 +4,14 @@ Map = require './map'
 Room = require './room'
 Cell = require './cell'
 MTRandom = require './random'
-PickDirection = require './navigator'
+# PickDirection = require './navigator'
+# deepEqual = require 'lodash.isequal'
 
 module.exports = class Dungeon extends Map
 
-  rooms: []
-  visited: []
-
   constructor: (width, height, seed=null) ->
+    @rooms = []
+    @visited = []
     @Random = new MTRandom seed
     super(width, height)
 
@@ -34,8 +34,8 @@ module.exports = class Dungeon extends Map
   createCorridor: (x, y, direction) ->
     throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
     # if @hasAdjacent(x,y,direction)
-    @getCell(x, y).corridor = true
-    @getAdjacentCell(x,y,direction).corridor = true
+    @getCell(x, y).makeCorridor direction
+    @getAdjacentCell(x,y,direction).makeCorridor direction
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -83,14 +83,13 @@ module.exports = class Dungeon extends Map
   flagAllCellsAsUnvisited: ->
     @forAllLocations (x,y,c)-> c.clearVisits()
 
-  flagRandomCell: ->
+  pickRandomCell: ->
     throw new Error("All cells visited already") if @allCellsVisited()
     x = @Random.next 0, @width-1
     y = @Random.next 0, @height-1
     if @getCell(x,y).visited
-      @flagARandomCell() #try again TODO inefficient
+      @pickRandomCell() #try again TODO inefficient
     else
-      @visitCell x, y
       [x, y]
 
   visitCell: (x,y) ->
@@ -115,46 +114,13 @@ module.exports = class Dungeon extends Map
     valid
 
   createDenseMaze: (zigzaggyness) ->
-    [x, y] = @flagRandomCell()
-    console.log(["picking cell", x, y])
-    valid = @validWalkDirections(x, y)
-    
-    while valid.length > 0
-      console.log(['valid directions', valid])
-      # return if valid.length = 0 #go around again (break)
-      direction = valid[@Random.next(0, valid.length-1)]
-      [x, y] = @createCorridor x, y, direction
-      console.log(["making corridor at", x, y])
+    until @allCellsVisited()
+      [x, y] = @pickRandomCell()
+      @visitCell x, y
       valid = @validWalkDirections(x, y)
-      console.log(['valid directions', valid])
-      # [x, y] = createCorridor x, y, direction
-        # valid = d for d in validWalkDirections(x, y) when d isnt direction
 
-#return false if @validWalkDirections(x,y).length is 0
-
-
-    # direction = DIRECTIONS.NORTH
-    # while @inBounds(@getAdjacent(x,y, direction)...) and not @adjacentIsVisited(x,y,direction)
-    #   direction = getNextD(@Random, zigzaggyness, direction)
-
-
-# getNextD = (generator, zigzaggyness, previous) ->
-#   return previous if generator.next(0,99) < zigzaggyness
-#   return (x in DIRECTIONS when x isnt previous)[generator.next(0,2)]
-    
-
-    # until @allCellsVisited()
-    #   navigator = new PickDirection previous, zigzaggyness, @Random
-    #   while (@inBounds(@getAdjacent(x,y, direction)...) and not @adjacentIsVisited(x,y,direction) )
-    #     next = navigator.next()
-
-
-    #   console.log "#{[x,y]}\t", "#{next}", "has adjacent: #{@hasAdjacent(x, y, next)}", "adjacent visited: #{@adjacentIsVisited(x,y,next)}"
-    #   while not @hasAdjacent(x, y, next) or @adjacentIsVisited(x,y,next)
-    #     unless navigator.hasNext()
-    #       [x, y] = @getRandomVisitedCell()
-    #       navigator = new PickDirection previous, zigzaggyness, @Random
-    #     next = navigator.next()
-    #   console.log "#{[x,y]}\t", "#{next}", "has adjacent: #{@hasAdjacent(x, y, next)}", "adjacent visited: #{@adjacentIsVisited(x,y,next)}"
-    #   [x,y] = @createCorridor x, y, next
-    #   next = navigator.next()
+      while valid.length > 0
+        direction = valid[@Random.next(0, valid.length-1)] #TODO zigzagyness
+        [x, y] = @createCorridor x, y, direction
+        @visitCell x, y
+        valid = @validWalkDirections(x, y)
