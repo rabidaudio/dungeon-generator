@@ -78,6 +78,25 @@ describe 'Dungeon', ->
   it "shouldn't let you add rooms outside it's boundaries", ->
     expect( ()-> d.addRoom(new Room(3,3), 8, 8) ).to.throw /Out of Bounds/
 
+  describe "validWalkDirections", ->
+    d = new Dungeon 10, 10
+
+    it "should know when all directions are valid", ->
+      expect(d.validWalkDirections(5,5)).to.have.length 4
+
+    it "should know when adjacent cells are out of bounds", ->
+      expect(d.validWalkDirections(0,0)).to.have.length 2
+
+    it "should know when adjacent cells are visited", ->
+      d.visitCell(1,0)
+      d.visitCell(0,1)
+      expect(d.validWalkDirections(1,1)).to.have.length 2
+
+    it "should know when all adjacent cells are visited", ->
+      d.visitCell(2,1)
+      d.visitCell(1,2)
+      expect(d.validWalkDirections(1,1)).to.have.length 0
+
   describe 'visiting', ->
     v = new Dungeon 10,10
     it "shouldn't have any visits initally", ->
