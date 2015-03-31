@@ -60,7 +60,7 @@ describe 'Dungeon', ->
 
     it "should know when all the cells have been visited", ->
       q = new Dungeon 5, 5
-      q.forAllLocations (x,y) => q.visitCell x, y
+      q.visitCell(x, y) for [x,y] in  q.allLocations()
       expect(q.visited).to.equal 25
       expect(q.allCellsVisited()).to.be.true
 
@@ -75,15 +75,14 @@ describe 'Dungeon', ->
     d.addRoom( new Room(3,3), 3, 0)
     it "should update both sides of a cell pair", ->
       d.createDoor(2,2, 'east')
-      expect(d.getCell(2,2)).to.have.property 'east', 'door'
-      expect(d.getCell(3,2)).to.have.property 'west', 'door'
+      expect(d.get(2,2)).to.have.property 'east', 'door'
+      expect(d.get(3,2)).to.have.property 'west', 'door'
 
     it "shouldn't try to add doors to outside the map", ->
-      d.createDoor(0,0, 'north')
-      expect(d.getCell(0,0)).to.have.property 'north', 'wall'
-      expect(()-> d.getCell(0,-1)).to.throw /Out of Bounds/
+      expect(()-> d.createDoor(0,0, 'north')).to.throw /Out of Bounds/
 
     it "shouldn't try to add doors to empty cells", ->
-      d.createDoor(0,2, 'south')
-      expect(d.getCell(0,2)).to.have.property 'south', 'wall'
-      expect(d.getCell(0,3).blank).to.be.true
+      expect(()-> d.createDoor(0,2, 'south')).to.throw /Out of Bounds/
+      # d.createDoor(0,2, 'south')
+      # expect(d.get(0,2)).to.have.property 'south', 'wall'
+      # expect(d.get(0,3).blank).to.be.true

@@ -11,15 +11,15 @@ describe 'Room', ->
         4 5 6
         7 8 9
   ###
-  one   = r.getCell 0, 0
-  two   = r.getCell 1, 0
-  three = r.getCell 2, 0
-  four  = r.getCell 0, 1
-  five  = r.getCell 1, 1
-  six   = r.getCell 2, 1
-  seven = r.getCell 0, 2
-  eight = r.getCell 1, 2
-  nine  = r.getCell 2, 2
+  one   = r.get 0, 0
+  two   = r.get 1, 0
+  three = r.get 2, 0
+  four  = r.get 0, 1
+  five  = r.get 1, 1
+  six   = r.get 2, 1
+  seven = r.get 0, 2
+  eight = r.get 1, 2
+  nine  = r.get 2, 2
 
   it "should correctly place on edges", =>
     expect(two).to.have.property 'north', 'wall'

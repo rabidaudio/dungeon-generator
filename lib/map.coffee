@@ -3,22 +3,13 @@ ArrayGrid = require 'array-grid'
 Cell = require './cell'
 deepEqual = require 'lodash.isequal'
 
-class Map
-  constructor: (@width, @height) ->
-    @cells = new ArrayGrid([], [@width, @height])
-    @forAllLocations (x,y) => @cells.set(x, y, new Cell() )
+class Map extends ArrayGrid
+  constructor: (@width, @height, defaultCell=null) ->
+    super(new Array(@width*@height), [@width, @height]) #build parent 2D array
+    for [x, y] in @allLocations() #populate
+      @set(x, y, new Cell(defaultCell)) 
 
-  getCell: (x, y)->
-    throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
-    @cells.get x, y
-
-  updateCell: (x, y, val) ->
-    throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
-    @cells.get(x, y).update(val)
-
-  setCell: (x, y, c) ->
-    throw new Error("Out of Bounds: #{x}, #{y}") if not @inBounds x, y
-    @cells.set(x, y, c)
+  update: (x,y,val) -> if @inBounds(x,y) then @get(x,y).update(val) else throw new Error "Out of Bounds: #{x}, #{y}"
 
   getSide: (direction) ->
     sides = []
@@ -30,21 +21,23 @@ class Map
       else throw new Error("Invalid direction: #{direction}")
     sides
 
-  setSide: (x,y,direction, value) ->
-    data = {}
-    data[direction] = value
-    @updateCell(x,y,data)
+  setCellSide: (x,y, direction, value) ->
+    @get(x,y).setSide direction, value
 
-  forAllLocations: (cb) ->
-    for y in [0..@height-1]
-      for x in [0..@width-1]
-        cb x, y, @getCell(x,y)
+  # forAllLocations: (cb) ->
+  #   for y in [0..@height-1]
+  #     for x in [0..@width-1]
+  #       cb x, y, @get(x,y)
 
-  nonEmptyLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.notBlank()
+  allLocations:      -> @coordsAt(index) for index in [0..@data.length-1]
 
-  deadEndLocations:  -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.isDeadEnd()
+  nonEmptyLocations: -> @coordsAt(index) for cell, index in @data when not cell.blank
 
-  corridorLocations: -> @cells.coordsAt(index) for cell, index in @cells.data when cell?.corridor
+  deadEndLocations:  -> @coordsAt(index) for cell, index in @data when cell.isDeadEnd()
+
+  corridorLocations: -> @coordsAt(index) for cell, index in @data when cell.corridor
+
+  unvisitedLocations:-> @coordsAt(index) for cell, index in @data when not cell.visited
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >= 0 and y < @height
 
@@ -58,10 +51,10 @@ class Map
       when DIRECTIONS.EAST  then return [x+1, y]
       else throw new Error("Invalid direction: #{direction}")
 
-  getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...
+  getAdjacentCell: (x, y, direction) -> @get @getAdjacent(x, y, direction)...
 
   hasAdjacent: (x, y, direction) ->
-    @adjacentInBounds(x,y,direction) and @getAdjacentCell(x,y,direction).notBlank()
+    @adjacentInBounds(x,y,direction) and not @getAdjacentCell(x,y,direction).blank #TODO hasAdjacent should be for inbounds only
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
@@ -71,15 +64,15 @@ class Map
       when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
       else throw new Error("Invalid direction: #{direction}")
 
-  getCellID: (x,y)-> return x*@width + y
-  getCellCoordinates: (id)-> [Math.floor(id/@width), Math.floor(id % @width)]
+  # getCellID: (x,y)-> return x*@width + y
+  # getCellCoordinates: (id)-> [Math.floor(id/@width), Math.floor(id % @width)]
 
-  toString: ->
+  print: ->
     map = ""
     for y in [0..@height-1]
       for x in [0..@width-1]
-        cell = @getCell x, y
-        if cell.notBlank()
+        cell = @get x, y
+        if not cell.blank
           if cell.isEmpty() then  map+= " "
           else if cell.corridor then map+="X"
           else if cell.doorCount() > 0 then map+='\\'

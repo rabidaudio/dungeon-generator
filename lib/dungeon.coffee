@@ -1,6 +1,6 @@
 DIRECTIONS = require './directions'
 TYPES = require './types'
-VisitableMap = require './visitable_map'
+VisitableMap = require './visitable-map'
 Room = require './room'
 Cell = require './cell'
 
@@ -11,7 +11,8 @@ module.exports = class Dungeon extends VisitableMap
     super(width, height, seed)
 
   addRoom: (room, x, y) ->
-    room.forAllLocations (rx,ry,c) => @setCell x+rx, y+ry, c
+    throw new Error("Can't place Room at #{x}, #{y}: Out of Bounds") if not @willFit(room, x,y)
+    @set(x+rx, y+ry, room.get(rx, ry)) for [rx,ry] in room.allLocations()
     room.dungeon = this
     room.location = [x, y]
     @rooms.push room
@@ -20,14 +21,13 @@ module.exports = class Dungeon extends VisitableMap
     if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
   createDoor: (x, y, direction) ->
-    throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
-    if @hasAdjacent(x,y,direction)
-      @setSide x, y, direction, TYPES.DOOR
-      @setSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
+    throw new Error("Can't add #{direction} door at #{x}, #{y}: Out of Bounds") unless @inBounds(x,y) and @hasAdjacent(x,y,direction)
+    @setCellSide x, y, direction, TYPES.DOOR
+    @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
 
   createCorridor: (x, y, direction) ->
-    throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
-    @getCell(x, y).makeCorridor(direction)
+    throw new Error("Can't edit cell at #{x}, #{y}: Out of Bounds") if not @inBounds(x,y)
+    @get(x, y).makeCorridor(direction)
     @getAdjacentCell(x,y,direction).makeCorridor(direction) if @hasAdjacent(x,y,direction)
     return @getAdjacent(x,y,direction)
 
@@ -36,13 +36,14 @@ module.exports = class Dungeon extends VisitableMap
   roomPlacementScore: (room, x, y) ->
     return -Infinity if not @willFit room, x, y
     score = 0
-    room.forAllLocations (roomX, roomY, c) =>
+    # room.forAllLocations (roomX, roomY, c) =>
+    for [roomX, roomY] in room.allLocations()
       dX = x + roomX
       dY = y + roomY
       #loose 1 point for each adjacent corridor to the cell
       (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in DIRECTIONS
-      dCell = @getCell(dX, dY)
-      if dCell.notBlank()
+      dCell = @get(dX, dY)
+      if not dCell.blank
         #loose 3 points if the cell overlaps an existing corridor
         score-=3 if dCell.corridor
         # loose 100 points if the cell overlaps any existing room cells
@@ -54,7 +55,7 @@ module.exports = class Dungeon extends VisitableMap
       room = new Room @Random.next(minWidth, maxWidth), @Random.next(minHeight, maxHeight)
       bestScore = -Infinity
       bestSpot = undefined
-      @forAllLocations (dX, dY) =>
+      for [dX, dY] in @allLocations()
         newScore = @roomPlacementScore(room, dX, dY)
         if newScore>bestScore
           bestScore = newScore

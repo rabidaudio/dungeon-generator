@@ -1,4 +1,7 @@
-
+###
+  The purpose of this is to hide these magic strings behind variable names.
+  It also allows us to use the `for x in...` pattern. 
+###
 DIRECTIONS = ['north', 'south', 'east', 'west']
 
 DIRECTIONS.NORTH = DIRECTIONS[0]

@@ -16,24 +16,24 @@ describe 'Map', ->
     expect(m.inBounds(3,3)).to.be.false
 
   it "should allow you to set cells within the boundaries", ->
-    m.updateCell(0,0, {north:'wall'})
-    m.updateCell(2,3, {east: 'door'})
-    expect(m.getCell(0,0)).to.have.property 'north', 'wall'
-    expect(m.getCell(2,3)).to.have.property 'east', 'door'
+    m.update(0,0, {north:'wall'})
+    m.update(2,3, {east: 'door'})
+    expect(m.get(0,0)).to.have.property 'north', 'wall'
+    expect(m.get(2,3)).to.have.property 'east', 'door'
 
   it "should *only* allow you to set cells within the boundaries", ->
-    expect(()-> m.updateCell(-1,0, {north:'wall'})).to.throw /Out of Bounds/
-    expect(()-> m.updateCell(3,3, {east: 'door'})).to.throw /Out of Bounds/
+    expect(()-> m.update(-1,0, {north:'wall'})).to.throw /Out of Bounds/
+    expect(()-> m.update(3,3, {east: 'door'})).to.throw /Out of Bounds/
 
   it "should let you read from cells", ->
-    expect(m.getCell(0,0)).to.have.property 'north', 'wall'
+    expect(m.get(0,0)).to.have.property 'north', 'wall'
 
   it "should let you update cells", ->
-    m.updateCell 1,1, {south: 'door', west: 'wall'}
-    expect(m.getCell(1,1)).to.have.property 'north', 'empty'
-    expect(m.getCell(1,1)).to.have.property 'south', 'door'
-    expect(m.getCell(1,1)).to.have.property 'east', 'empty'
-    expect(m.getCell(1,1)).to.have.property 'west', 'wall'
+    m.update 1,1, {south: 'door', west: 'wall'}
+    expect(m.get(1,1)).to.have.property 'north', 'empty'
+    expect(m.get(1,1)).to.have.property 'south', 'door'
+    expect(m.get(1,1)).to.have.property 'east', 'empty'
+    expect(m.get(1,1)).to.have.property 'west', 'wall'
 
   it "should be able to find adjacent cell locations", ->
     expect( m.getAdjacent(0,0, 'east') ).to.deep.equal [1, 0]
@@ -44,16 +44,16 @@ describe 'Map', ->
     expect( m.hasAdjacent(0,0, 'north') ).to.be.false
 
   it "should return adjacent cells as well", ->
-    expect( m.getAdjacentCell(0,0, 'east') ).to.deep.equal m.getCell(1, 0)
+    expect( m.getAdjacentCell(0,0, 'east') ).to.deep.equal m.get(1, 0)
 
   it "should find corridor cells", ->
-    m.getCell(1,1).corridor = true
+    m.get(1,1).corridor = true
     expect(m.corridorLocations()).to.include.something.that.deep.equals [1,1]
 
   it "should find dead ends", ->
     m = new Map 1,4
     expect( m.deadEndLocations() ).to.be.empty
-    m.updateCell 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
+    m.update 0, 3, {north: 'wall', east: 'wall', south: 'wall'}
     expect( m.deadEndLocations() ).to.deep.equal [[0,3]]
 
   it "should allow us to get an entire side horizontally", ->
@@ -68,19 +68,19 @@ describe 'Map', ->
     expect(m.getSide('east')).to.include.something.that.deep.equals [2,1]
     expect(m.getSide('east')).not.to.include.something.that.deep.equals [0,0]
 
-  describe 'IDs', ->
-    i = new Map 3,3
-    it "should be able to turn XY coordinates into integer ids", ->
-      expect(i.getCellID(0,0)).to.equal 0
-      expect(i.getCellID(0,1)).to.equal 1
-      expect(i.getCellID(1,0)).to.equal 3
-      expect(i.getCellID(2,2)).to.equal 8
+  # describe 'IDs', ->
+  #   i = new Map 3,3
+  #   it "should be able to turn XY coordinates into integer ids", ->
+  #     expect(i.getCellID(0,0)).to.equal 0
+  #     expect(i.getCellID(0,1)).to.equal 1
+  #     expect(i.getCellID(1,0)).to.equal 3
+  #     expect(i.getCellID(2,2)).to.equal 8
 
-    it "should be able to turn integer ids back to coordinates", ->
-      expect(i.getCellCoordinates(0)).to.deep.equal [0,0]
-      expect(i.getCellCoordinates(1)).to.deep.equal [0,1]
-      expect(i.getCellCoordinates(3)).to.deep.equal [1,0]
-      expect(i.getCellCoordinates(8)).to.deep.equal [2,2]
+  #   it "should be able to turn integer ids back to coordinates", ->
+  #     expect(i.getCellCoordinates(0)).to.deep.equal [0,0]
+  #     expect(i.getCellCoordinates(1)).to.deep.equal [0,1]
+  #     expect(i.getCellCoordinates(3)).to.deep.equal [1,0]
+  #     expect(i.getCellCoordinates(8)).to.deep.equal [2,2]
 
 describe 'Map.overlap', ->
   r1 = new Room 1, 1

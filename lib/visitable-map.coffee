@@ -10,23 +10,25 @@ module.exports = class VisitableMap extends Map
     super(width, height)
 
   flagAllCellsAsUnvisited: ->
-    @forAllLocations (x,y,c)-> c.clearVisits()
+    c.clearVisits() for c in @data
     @visited = 0
 
   pickRandomCell: ->
     throw new Error("All cells visited already") if @allCellsVisited()
+    unvisited = @unvisitedLocations()
+    # return unvisited[@Random.next(0, unvisited.length)]
     # n = @Random.next 1, @width*@height - @visited.length
     # for i in [0..@width*@height]
     #   return @getCellCoordinates(i) if @visited.indexOf(i) is -1 and --n is 0
     x = @Random.next 0, @width-1
     y = @Random.next 0, @height-1
-    if @getCell(x,y).visited then @pickRandomCell() else [x, y]
+    if @get(x,y).visited then @pickRandomCell() else [x, y]
 
   visitCell: (x,y) ->
-    cell = @getCell(x,y)
+    cell = @get(x,y)
     throw new Error("Cell #{[x,y]} is already visited") if cell.visited
     cell.visit()
-    @visited++
+    @visited++ #todo remove?
 
   adjacentIsVisited: (x, y, direction) ->
     if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).visited

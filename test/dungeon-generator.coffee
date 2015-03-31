@@ -12,7 +12,7 @@ describe 'Dungeon Generator', ->
   square = new Room 3, 3
   hall = new Room 4, 1
 
-  hall.forAllLocations (x,y,c)-> c.corridor = true
+  c.corridor = true for c in hall.data
 
   d.addRoom square, 0, 0
   d.addRoom square, 7, 0

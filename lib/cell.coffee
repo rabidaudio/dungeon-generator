@@ -1,12 +1,22 @@
 DIRECTONS = require './directions'
 TYPES = require './types'
 
-module.exports = class Cell
 
-  constructor: (d=null, @corridor=false) ->
-    if d?
+module.exports = class Cell
+  ###
+    @constructor
+    @param {Object} data - The state to initialize the cell with. Keys are DIRECTIONS and
+      values are TYPES. For example:
+        {
+          'north': 'wall',
+          'east': 'door'
+        }
+      Any unspecified directions will be set to 'empty'.
+  ###
+  constructor: (data=null) ->
+    if data?
       for direction in DIRECTONS
-        this[direction] = d[direction] or TYPES.EMPTY
+        @[direction] = data[direction] or TYPES.EMPTY
       @blank = false
     else
       @blank = true
@@ -15,12 +25,12 @@ module.exports = class Cell
 
   wallCount: -> 
     walls = 0
-    (walls++ if this[d] is TYPES.WALL) for d in DIRECTONS
+    (walls++ if @[d] is TYPES.WALL) for d in DIRECTONS
     walls
 
   doorCount: ->
     doors = 0
-    (doors++ if this[d] is TYPES.DOOR) for d in DIRECTONS
+    (doors++ if @[d] is TYPES.DOOR) for d in DIRECTONS
     doors
 
   isEmpty: -> @wallCount()+@doorCount() is 0
@@ -37,15 +47,19 @@ module.exports = class Cell
   deadEndDirection: ->
     return false unless @isDeadEnd()
     for d in DIRECTONS
-      return d if this[d] is TYPES.EMPTY
+      return d if @[d] is TYPES.EMPTY
 
-  # set: (direction, type) -> this[direction] = type if direction in DIRECTONS
+  # set: (direction, type) -> @[direction] = type if direction in DIRECTONS
 
-  notBlank: -> not @blank
+  # notBlank: -> not @blank
+
+  setSide: (direction, value) ->
+    @[direction] = value
+    @blank = false
 
   update: (d) ->
     for direction in DIRECTONS
-      this[direction] = if d[direction]? then d[direction] else TYPES.EMPTY
+      @[direction] = if d[direction]? then d[direction] else TYPES.EMPTY
     @blank = false
 
   visit: -> @visited = true
