@@ -66,12 +66,9 @@ describe 'Dungeon', ->
       expect(q.visited).to.have.length 25
       expect(q.allCellsVisited()).to.be.true
 
-    it "should let you vist all cells by choosing randomly", (done) ->
-      setTimeout(()->
-        r = new Dungeon 50,50
-        r.visitCell r.pickRandomCell()... until r.allCellsVisited()
-        done()
-      ,0)
+    it "should let you vist all cells by choosing randomly", ->
+      r = new Dungeon 50,50
+      expect( ()->r.visitCell r.pickRandomCell()... until r.allCellsVisited() ).not.to.throw Error
 
 
   describe "createDoor()", ->
