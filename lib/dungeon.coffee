@@ -10,28 +10,26 @@ module.exports = class Dungeon extends VisitableMap
     super(width, height, seed)
 
   addRoom: (room, x, y) ->
-    throw new Error("Can't place Room at #{x}, #{y}: Out of Bounds") if not @willFit(room, x,y)
+    throw new Error "Can't place Room at #{x}, #{y}: Out of Bounds" if not @willFit(room, x,y)
     @set(x+rx, y+ry, room.get(rx, ry)) for [rx,ry] in room.allLocations()
     room.dungeon = this
     room.location = [x, y]
     @rooms.push room
 
   adjacentIsCorridor: (x, y, direction) ->
-    if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
+    if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
   createDoor: (x, y, direction) ->
     if not @inBounds(x,y) or not @hasAdjacent(x,y,direction)
-      throw new Error("Can't add #{direction} door at #{x}, #{y}: Out of Bounds")
+      throw new Error "Can't add #{direction} door at #{x}, #{y}: Out of Bounds"
     @setCellSide x, y, direction, TYPES.DOOR
     @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
 
   createCorridor: (x, y, direction) ->
     if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
-      throw new Error("Can't edit cell at #{x}, #{y}: Out of Bounds") 
+      throw new Error "Can't edit cell at #{x}, #{y}: Out of Bounds"
     @get(x,y).setSide(direction, TYPES.EMPTY)
     @getAdjacentCell(x,y,direction).setSide(DIRECTIONS.opposite(direction), TYPES.EMPTY)
-    # @get(x, y).makeCorridor(direction)
-    # @getAdjacentCell(x,y,direction).makeCorridor(direction)
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -76,6 +74,11 @@ module.exports = class Dungeon extends VisitableMap
     return @
 
   createDenseMaze: (zigzagyness) ->
+    #fill all cells with walls
+    defaultCell = {}
+    defaultCell[d] = TYPES.WALL for d in DIRECTIONS
+    c.update(defaultCell) for c in @data
+
     @flagAllCellsAsUnvisited()
     [x, y] = @pickRandomUnvisitedCell()
     @visitCell x, y

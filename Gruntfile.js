@@ -16,4 +16,6 @@ module.exports = function(grunt) {
   // grunt.registerTask('build', ['coffee']);
 
   // grunt.registerTask('default', ['buid', 'test']);
+
+  //browserify -t coffeeify  --extension=".coffee" -e lib/index.coffee -s DungeonGenerator
 }

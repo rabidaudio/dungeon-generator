@@ -36,21 +36,6 @@ module.exports = class Cell
     (count++ if @[d] is type) for d in DIRECTONS
     count
 
-  ###
-    In the places we use makeCorridor (Dungeons), it is assumed
-    that all the cells have been initalized to walls. 
-  ###
-  # makeCorridor: (direction) ->
-  #   switch direction
-  #     when DIRECTONS.NORTH, DIRECTONS.SOUTH
-  #       @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
-  #       @[DIRECTONS.NORTH] = @[DIRECTONS.SOUTH] = TYPES.EMPTY
-  #     when DIRECTONS.EAST, DIRECTONS.WEST
-  #       @[DIRECTONS.NORTH] = @[DIRECTONS.SOUTH] = TYPES.WALL
-  #       @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.EMPTY
-  #   @corridor = true
-  #   @_blank = false
-
   deadEndDirection: ->
     return false unless @isDeadEnd()
     for d in DIRECTONS

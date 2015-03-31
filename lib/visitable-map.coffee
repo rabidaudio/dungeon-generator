@@ -8,9 +8,7 @@ module.exports = class VisitableMap extends Map
   constructor: (width, height, seed=null) ->
     @visitedCount = 0
     @Random = new MTRandom seed
-    defaultCell = {}
-    defaultCell[d] = TYPES.WALL for d in DIRECTIONS
-    super(width, height, defaultCell)
+    super(width, height, null)
 
   unvisitedLocations:-> @coordsAt(index) for cell, index in @data when not cell._visited
 
