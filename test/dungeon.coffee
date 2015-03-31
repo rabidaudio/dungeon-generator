@@ -41,15 +41,15 @@ describe 'Dungeon', ->
   describe 'visiting', ->
     v = new Dungeon 10,10
     it "shouldn't have any visits initally", ->
-      expect(v.visited.length).to.equal 0
+      expect(v.visited).to.equal 0
 
     it "should allow you to visit a particular cell", ->
       v.visitCell 0,0
-      expect(v.visited.length).to.equal 1
+      expect(v.visited).to.equal 1
 
     it "should allow you to visit a random cell", ->
       v.visitCell(v.pickRandomCell()...)
-      expect(v.visited.length).to.equal 2
+      expect(v.visited).to.equal 2
 
     it "should not allow you to visit an already visited cell", ->
       expect(()-> v.visitCell(0,0)).to.throw /visited/
@@ -60,10 +60,8 @@ describe 'Dungeon', ->
 
     it "should know when all the cells have been visited", ->
       q = new Dungeon 5, 5
-      for x in [0..4]
-        for y in [0..4]
-          q.visitCell x, y
-      expect(q.visited).to.have.length 25
+      q.forAllLocations (x,y) => q.visitCell x, y
+      expect(q.visited).to.equal 25
       expect(q.allCellsVisited()).to.be.true
 
     it "should let you vist all cells by choosing randomly", ->
