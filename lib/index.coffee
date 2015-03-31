@@ -1,4 +1,3 @@
-
 Dungeon = require './dungeon'
 
 generate = (width=25, height=25, zigzagyness=30, sparseness=70, undeadendyness=50, seed=null) ->

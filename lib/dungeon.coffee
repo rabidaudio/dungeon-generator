@@ -33,10 +33,10 @@ module.exports = class Dungeon extends Map
 
   createCorridor: (x, y, direction) ->
     throw new Error("Can't edit cell at #{x}, #{y}: Out of bounds") if not @inBounds(x,y)
-    if @hasAdjacent(x,y,direction)
-      @getCell(x, y).corridor = true
-      @getAdjacentCell(x,y,direction).corridor = true
-      return @getAdjacent(x,y,direction)
+    # if @hasAdjacent(x,y,direction)
+    @getCell(x, y).corridor = true
+    @getAdjacentCell(x,y,direction).corridor = true
+    return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
 
@@ -100,7 +100,7 @@ module.exports = class Dungeon extends Map
     @visited.push [x,y]
 
   adjacentIsVisited: (x, y, direction) ->
-    if @hasAdjacent(x,y,direction) then @getAdjacentCell(x,y,direction).visited else false
+    if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).visited
 
   getRandomVisitedCell: ->
     throw new Error("No visited cells yet") if @visited.length is 0
@@ -111,21 +111,26 @@ module.exports = class Dungeon extends Map
   validWalkDirections: (x,y) ->
     valid = []
     for d in DIRECTIONS
-      valid.push(d) if @inBounds @getAdjacent(x, y, d)...
-
-  randomDirection: (x, y, current) ->
-    DIRECTIONS.SOUTH #such random wow
+      valid.push(d) if @adjacentInBounds(x,y,d) and not @adjacentIsVisited(x,y,d)
+    valid
 
   createDenseMaze: (zigzaggyness) ->
     [x, y] = @flagRandomCell()
-    direction = DIRECTIONS.NORTH
-    valid = DIRECTIONS
+    console.log(["picking cell", x, y])
+    valid = @validWalkDirections(x, y)
+    
     while valid.length > 0
-      break if valid.length = 0 #go around again
-      direction = randomDirection
-      [x, y] = createCorridor x, y, direction
-      valid = d for d in validWalkDirections(x, y) when d isnt direction
+      console.log(['valid directions', valid])
+      # return if valid.length = 0 #go around again (break)
+      direction = valid[@Random.next(0, valid.length-1)]
+      [x, y] = @createCorridor x, y, direction
+      console.log(["making corridor at", x, y])
+      valid = @validWalkDirections(x, y)
+      console.log(['valid directions', valid])
+      # [x, y] = createCorridor x, y, direction
+        # valid = d for d in validWalkDirections(x, y) when d isnt direction
 
+#return false if @validWalkDirections(x,y).length is 0
 
 
     # direction = DIRECTIONS.NORTH

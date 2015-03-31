@@ -48,6 +48,8 @@ class Map
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >= 0 and y < @height
 
+  adjacentInBounds: (x,y, direction) -> @inBounds(@getAdjacent(x, y, direction)...)
+
   getAdjacent: (x, y, direction) ->
     switch direction
       when DIRECTIONS.NORTH then return [x, y-1]
@@ -59,7 +61,7 @@ class Map
   getAdjacentCell: (x, y, direction) -> @getCell @getAdjacent(x, y, direction)...
 
   hasAdjacent: (x, y, direction) ->
-    @inBounds(@getAdjacent(x, y, direction)...) and @getAdjacentCell(x,y,direction).notBlank()
+    @adjacentInBounds(x,y,direction) and @getAdjacentCell(x,y,direction).notBlank()
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
@@ -75,7 +77,8 @@ class Map
       for x in [0..@width-1]
         cell = @getCell x, y
         if cell.notBlank()
-          if cell.isEmpty() then  map+= " "
+          if cell.visited then map+="v" #TODO remove
+          else if cell.isEmpty() then  map+= " "
           else if cell.corridor then map+="X"
           else if cell.doorCount() > 0 then map+='\\'
           else map+= "#"
