@@ -2,6 +2,9 @@ DIRECTIONS = require './directions'
 ArrayGrid = require 'array-grid'
 Cell = require './cell'
 
+###
+  A 2D array of Cells
+###
 class Map extends ArrayGrid
   constructor: (@width, @height, defaultCell=null) ->
     super(new Array(@width*@height), [@width, @height]) #build parent 2D array
@@ -10,17 +13,14 @@ class Map extends ArrayGrid
   update: (x,y,val) -> if @inBounds(x,y) then @get(x,y).update(val) else throw new Error "Out of Bounds: #{x}, #{y}"
 
   getSide: (direction) ->
-    sides = []
     switch direction
-      when DIRECTIONS.NORTH then sides.push([x, 0])         for x in [0..@width-1]
-      when DIRECTIONS.SOUTH then sides.push([x, @height-1]) for x in [0..@width-1]
-      when DIRECTIONS.EAST  then sides.push([@width-1, y])  for y in [0..@height-1]
-      when DIRECTIONS.WEST  then sides.push([0, y])         for y in [0..@height-1]
+      when DIRECTIONS.NORTH then return ([x, 0] for x in [0..@width-1])
+      when DIRECTIONS.SOUTH then return ([x, @height-1] for x in [0..@width-1])
+      when DIRECTIONS.EAST  then return ([@width-1, y] for y in [0..@height-1])
+      when DIRECTIONS.WEST  then return ([0, y] for y in [0..@height-1])
       else throw new Error("Invalid direction: #{direction}")
-    sides
 
-  setCellSide: (x,y, direction, value) ->
-    @get(x,y).setSide direction, value
+  setCellSide: (x,y, direction, value) -> @get(x,y).setSide direction, value
 
   allLocations:      -> @coordsAt(index) for index in [0..@data.length-1]
 
@@ -44,9 +44,6 @@ class Map extends ArrayGrid
 
   adjacentInBounds: (x,y, direction) -> @inBounds(@getAdjacent(x, y, direction)...)
 
-  ###
-    @return {Boolean} - True if both the cell is in bounds and isn't blank
-  ###
   hasAdjacent: (x, y, direction) -> @adjacentInBounds(x,y,direction) and not @getAdjacentCell(x,y,direction).isBlank()
 
   getRandomCellAlongSide: (direction, generator) ->
@@ -68,6 +65,18 @@ class Map extends ArrayGrid
         else if cell.doorCount() > 0 then map+='\\'
         else map+= "#"
       map+="\n"
+    map
+
+  printFull: ->
+    map = ""
+    for y in [0..@height-1]
+      rows = ["","",""]
+      for x in [0..@width-1]
+        current = @get(x,y).print().split("\n")
+        rows[0]+=current[0]
+        rows[1]+=current[1]
+        rows[2]+=current[2]
+      map+=rows.join("\n")+"\n"
     map
 
 ###

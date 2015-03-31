@@ -40,8 +40,10 @@ module.exports = class Cell
     switch direction
       when DIRECTONS.NORTH, DIRECTONS.SOUTH
         @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
-      when DIRECTONS.NORTH, DIRECTONS.SOUTH
-        @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
+        @[DIRECTONS.NORTH] = @[DIRECTONS.SOUTH] = TYPES.EMPTY
+      when DIRECTONS.EAST, DIRECTONS.WEST
+        @[DIRECTONS.NORTH] = @[DIRECTONS.SOUTH] = TYPES.WALL
+        @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.EMPTY
     @corridor = true
     @_blank = false
 
@@ -60,9 +62,45 @@ module.exports = class Cell
     @_blank = false
 
   ###
-    Do not call this directly. Use `VisitableMap::visitCell()`
-    @private
+    Return a 3x3 character representation of the cell
   ###
-  visit: -> @_visited = true
-
-  clearVisits: -> @_visited = false
+  print: ->
+    return "▒▒▒\n▒▒▒\n▒▒▒\n" if @isBlank()
+    cell = new Array(9)
+    #center
+    cell[4] = " "
+    #edges
+    cell[1] = switch @[DIRECTONS.NORTH]
+      when TYPES.WALL  then "─"
+      when TYPES.DOOR  then "~"
+      when TYPES.EMPTY then " "
+    cell[7] = switch @[DIRECTONS.SOUTH]
+      when TYPES.WALL  then "─"
+      when TYPES.DOOR  then "~"
+      when TYPES.EMPTY then " "
+    cell[3] = switch @[DIRECTONS.WEST]
+      when TYPES.WALL  then "│"
+      when TYPES.DOOR  then "~"
+      when TYPES.EMPTY then " "
+    cell[5] = switch @[DIRECTONS.EAST]
+      when TYPES.WALL  then "│"
+      when TYPES.DOOR  then "~"
+      when TYPES.EMPTY then " "
+    #corners
+    if @[DIRECTONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[0] = "┌"
+    else if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY then cell[0] = "─"
+    else if @[DIRECTIONS.WEST]  isnt TYPES.EMPTY then cell[0] = "│"
+    else cell[0] = " "
+    if @[DIRECTONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[6] = "└"
+    else if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY then cell[6] = "─"
+    else if @[DIRECTIONS.WEST]  isnt TYPES.EMPTY then cell[6] = "│"
+    else cell[6] = " "
+    if @[DIRECTONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[8] = "┘"
+    else if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY then cell[8] = "─"
+    else if @[DIRECTIONS.EAST]  isnt TYPES.EMPTY then cell[8] = "│"
+    else cell[8] = " "
+    if @[DIRECTONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[2] = "┐"
+    else if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY then cell[2] = "─"
+    else if @[DIRECTIONS.EAST]  isnt TYPES.EMPTY then cell[2] = "│"
+    else cell[2] = " "
+    return [cell[0..2].join(""), cell[3..5].join(""), cell[6..8].join("")].join("\n")
