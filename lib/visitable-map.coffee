@@ -9,6 +9,8 @@ module.exports = class VisitableMap extends Map
     @Random = new MTRandom seed
     super(width, height)
 
+  unvisitedLocations:-> @coordsAt(index) for cell, index in @data when not cell._visited
+
   flagAllCellsAsUnvisited: ->
     c.clearVisits() for c in @data
     @visited = 0
@@ -16,28 +18,18 @@ module.exports = class VisitableMap extends Map
   pickRandomCell: ->
     throw new Error("All cells visited already") if @allCellsVisited()
     unvisited = @unvisitedLocations()
-    # return unvisited[@Random.next(0, unvisited.length)]
-    # n = @Random.next 1, @width*@height - @visited.length
-    # for i in [0..@width*@height]
-    #   return @getCellCoordinates(i) if @visited.indexOf(i) is -1 and --n is 0
-    x = @Random.next 0, @width-1
-    y = @Random.next 0, @height-1
-    if @get(x,y).visited then @pickRandomCell() else [x, y]
+    return unvisited[@Random.next(0, unvisited.length-1)]
 
   visitCell: (x,y) ->
     cell = @get(x,y)
-    throw new Error("Cell #{[x,y]} is already visited") if cell.visited
+    throw new Error("Cell #{[x,y]} is already visited") if cell.isVisited()
     cell.visit()
-    @visited++ #todo remove?
+    @visited++
 
   adjacentIsVisited: (x, y, direction) ->
-    if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).visited
+    if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).isVisited()
 
-  # getRandomVisitedCell: ->
-  #   throw new Error("No visited cells yet") if @visited.length is 0
-  #   @visited[@Random.next(0, @visited.length-1)]
-
-  allCellsVisited: -> @visited is @width * @height
+  allCellsVisited: -> @visited is @width*@height
 
   validWalkDirections: (x,y) ->
     d for d in DIRECTIONS when @adjacentInBounds(x,y,d) and not @adjacentIsVisited(x,y,d)

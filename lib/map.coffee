@@ -1,7 +1,6 @@
 DIRECTIONS = require './directions'
 ArrayGrid = require 'array-grid'
 Cell = require './cell'
-deepEqual = require 'lodash.isequal'
 
 class Map extends ArrayGrid
   constructor: (@width, @height, defaultCell=null) ->
@@ -24,20 +23,13 @@ class Map extends ArrayGrid
   setCellSide: (x,y, direction, value) ->
     @get(x,y).setSide direction, value
 
-  # forAllLocations: (cb) ->
-  #   for y in [0..@height-1]
-  #     for x in [0..@width-1]
-  #       cb x, y, @get(x,y)
-
   allLocations:      -> @coordsAt(index) for index in [0..@data.length-1]
 
-  nonEmptyLocations: -> @coordsAt(index) for cell, index in @data when not cell.blank
+  nonEmptyLocations: -> @coordsAt(index) for cell, index in @data when not cell.isBlank()
 
   deadEndLocations:  -> @coordsAt(index) for cell, index in @data when cell.isDeadEnd()
 
   corridorLocations: -> @coordsAt(index) for cell, index in @data when cell.corridor
-
-  unvisitedLocations:-> @coordsAt(index) for cell, index in @data when not cell.visited
 
   inBounds: (x, y) -> x >= 0 and x < @width and y >= 0 and y < @height
 
@@ -54,7 +46,7 @@ class Map extends ArrayGrid
   getAdjacentCell: (x, y, direction) -> @get @getAdjacent(x, y, direction)...
 
   hasAdjacent: (x, y, direction) ->
-    @adjacentInBounds(x,y,direction) and not @getAdjacentCell(x,y,direction).blank #TODO hasAdjacent should be for inbounds only
+    @adjacentInBounds(x,y,direction) and not @getAdjacentCell(x,y,direction).isBlank() #TODO hasAdjacent should be for inbounds only
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
@@ -64,15 +56,12 @@ class Map extends ArrayGrid
       when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
       else throw new Error("Invalid direction: #{direction}")
 
-  # getCellID: (x,y)-> return x*@width + y
-  # getCellCoordinates: (id)-> [Math.floor(id/@width), Math.floor(id % @width)]
-
   print: ->
     map = ""
     for y in [0..@height-1]
       for x in [0..@width-1]
         cell = @get x, y
-        if not cell.blank
+        if not cell.isBlank()
           if cell.isEmpty() then  map+= " "
           else if cell.corridor then map+="X"
           else if cell.doorCount() > 0 then map+='\\'
@@ -88,11 +77,10 @@ Map.overlap = (mapA, mapB, x, y) ->
   cellsA = mapA.nonEmptyLocations()
   cellsB = mapB.nonEmptyLocations()
   overlaps = 0
-  for cellA in cellsA
-    cellA[0]+=x
-    cellA[1]+=y
-    for cellB in cellsB
-      overlaps++ if deepEqual cellA, cellB
+  for [aX, aY] in cellsA
+    aX+=x
+    aY+=y
+    for [bX, bY] in cellsB
+      overlaps++ if aX is bX and aY is bY
   overlaps
 
-module.exports = Map

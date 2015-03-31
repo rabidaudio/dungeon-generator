@@ -1,5 +1,5 @@
 require 'coffee-script/register'
-chai = require('chai')
+chai = require 'chai'
 expect = chai.expect
 chai.use(require('chai-things'))
 
@@ -67,20 +67,6 @@ describe 'Map', ->
     expect(m.getSide('east')).to.have.length 3
     expect(m.getSide('east')).to.include.something.that.deep.equals [2,1]
     expect(m.getSide('east')).not.to.include.something.that.deep.equals [0,0]
-
-  # describe 'IDs', ->
-  #   i = new Map 3,3
-  #   it "should be able to turn XY coordinates into integer ids", ->
-  #     expect(i.getCellID(0,0)).to.equal 0
-  #     expect(i.getCellID(0,1)).to.equal 1
-  #     expect(i.getCellID(1,0)).to.equal 3
-  #     expect(i.getCellID(2,2)).to.equal 8
-
-  #   it "should be able to turn integer ids back to coordinates", ->
-  #     expect(i.getCellCoordinates(0)).to.deep.equal [0,0]
-  #     expect(i.getCellCoordinates(1)).to.deep.equal [0,1]
-  #     expect(i.getCellCoordinates(3)).to.deep.equal [1,0]
-  #     expect(i.getCellCoordinates(8)).to.deep.equal [2,2]
 
 describe 'Map.overlap', ->
   r1 = new Room 1, 1

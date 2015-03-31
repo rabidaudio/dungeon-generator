@@ -1,10 +1,12 @@
 DIRECTONS = require './directions'
 TYPES = require './types'
 
-
+###
+  An individual location on a Map. Has 4 sides `['north', 'south', 'east', 'west']`
+  which will be one of `['door', 'wall', 'empty']` unless `isBlank()`
+###
 module.exports = class Cell
   ###
-    @constructor
     @param {Object} data - The state to initialize the cell with. Keys are DIRECTIONS and
       values are TYPES. For example:
         {
@@ -12,28 +14,27 @@ module.exports = class Cell
           'east': 'door'
         }
       Any unspecified directions will be set to 'empty'.
+      If it is omitted, the cell will be marked as blank and none of the directions
+      will be set.
   ###
-  constructor: (data=null) ->
-    if data?
-      for direction in DIRECTONS
-        @[direction] = data[direction] or TYPES.EMPTY
-      @blank = false
-    else
-      @blank = true
+  constructor: (data=null) -> if data? then @update(data) else @_blank = true
 
   isDeadEnd: -> @wallCount() is 3
 
-  wallCount: -> 
-    walls = 0
-    (walls++ if @[d] is TYPES.WALL) for d in DIRECTONS
-    walls
-
-  doorCount: ->
-    doors = 0
-    (doors++ if @[d] is TYPES.DOOR) for d in DIRECTONS
-    doors
-
   isEmpty: -> @wallCount()+@doorCount() is 0
+
+  isBlank: -> @_blank
+
+  isVisited: -> @_visited
+
+  wallCount: -> @typeCount TYPES.WALL
+
+  doorCount: -> @typeCount TYPES.DOOR 
+
+  typeCount: (type) ->
+    count = 0
+    (count++ if @[d] is type) for d in DIRECTONS
+    count
 
   makeCorridor: (direction) ->
     switch direction
@@ -42,26 +43,26 @@ module.exports = class Cell
       when DIRECTONS.NORTH, DIRECTONS.SOUTH
         @[DIRECTONS.EAST] = @[DIRECTONS.WEST] = TYPES.WALL
     @corridor = true
-    @blank = false
+    @_blank = false
 
   deadEndDirection: ->
     return false unless @isDeadEnd()
     for d in DIRECTONS
       return d if @[d] is TYPES.EMPTY
 
-  # set: (direction, type) -> @[direction] = type if direction in DIRECTONS
-
-  # notBlank: -> not @blank
-
   setSide: (direction, value) ->
     @[direction] = value
-    @blank = false
+    @_blank = false
 
-  update: (d) ->
+  update: (data) ->
     for direction in DIRECTONS
-      @[direction] = if d[direction]? then d[direction] else TYPES.EMPTY
-    @blank = false
+      @[direction] = if data[direction]? then data[direction] else TYPES.EMPTY
+    @_blank = false
 
-  visit: -> @visited = true
+  ###
+    Do not call this directly. Use `VisitableMap::visitCell()`
+    @private
+  ###
+  visit: -> @_visited = true
 
-  clearVisits: -> @visited = false
+  clearVisits: -> @_visited = false

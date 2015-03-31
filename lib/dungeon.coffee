@@ -2,7 +2,6 @@ DIRECTIONS = require './directions'
 TYPES = require './types'
 VisitableMap = require './visitable-map'
 Room = require './room'
-Cell = require './cell'
 
 module.exports = class Dungeon extends VisitableMap
 
@@ -36,14 +35,13 @@ module.exports = class Dungeon extends VisitableMap
   roomPlacementScore: (room, x, y) ->
     return -Infinity if not @willFit room, x, y
     score = 0
-    # room.forAllLocations (roomX, roomY, c) =>
     for [roomX, roomY] in room.allLocations()
       dX = x + roomX
       dY = y + roomY
       #loose 1 point for each adjacent corridor to the cell
       (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in DIRECTIONS
       dCell = @get(dX, dY)
-      if not dCell.blank
+      if not dCell.isBlank()
         #loose 3 points if the cell overlaps an existing corridor
         score-=3 if dCell.corridor
         # loose 100 points if the cell overlaps any existing room cells
