@@ -94,3 +94,15 @@ module.exports = class Dungeon extends VisitableMap
         @visitCell x, y
         valid = @validWalkDirections(x, y)
     return @
+
+  sparsifyMaze: (sparseness) ->
+    # Calculate the number of cells to remove as a percentage of the total number of cells in the dungeon
+    cellsToRemove = Math.ceil((sparseness/100)*(@width + @height))
+    for i in [0..cellsToRemove]
+      deadEnds = @deadEndLocations()
+      break if deadEnds.length is 0
+      cell = @get deadEnds[@Random.next(0, deadEnds.length-1)]... #get random dead end
+      console.log cell
+      cell.setSide cell.deadEndDirection(), TYPES.WALL #fill it in
+    return @
+

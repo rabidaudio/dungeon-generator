@@ -1,7 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.DungeonGenerator = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Cell, DIRECTONS, TYPES;
+var Cell, DIRECTIONS, TYPES;
 
-DIRECTONS = require('./directions');
+DIRECTIONS = require('./directions');
 
 TYPES = require('./types');
 
@@ -62,8 +62,8 @@ module.exports = Cell = (function() {
   Cell.prototype.typeCount = function(type) {
     var count, d, i, len;
     count = 0;
-    for (i = 0, len = DIRECTONS.length; i < len; i++) {
-      d = DIRECTONS[i];
+    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
+      d = DIRECTIONS[i];
       if (this[d] === type) {
         count++;
       }
@@ -76,8 +76,8 @@ module.exports = Cell = (function() {
     if (!this.isDeadEnd()) {
       return false;
     }
-    for (i = 0, len = DIRECTONS.length; i < len; i++) {
-      d = DIRECTONS[i];
+    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
+      d = DIRECTIONS[i];
       if (this[d] === TYPES.EMPTY) {
         return d;
       }
@@ -91,8 +91,8 @@ module.exports = Cell = (function() {
 
   Cell.prototype.update = function(data) {
     var direction, i, len;
-    for (i = 0, len = DIRECTONS.length; i < len; i++) {
-      direction = DIRECTONS[i];
+    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
+      direction = DIRECTIONS[i];
       this[direction] = data[direction] != null ? data[direction] : TYPES.EMPTY;
     }
     return this._blank = false;
@@ -111,7 +111,7 @@ module.exports = Cell = (function() {
     cell = new Array(9);
     cell[4] = "*";
     cell[1] = (function() {
-      switch (this[DIRECTONS.NORTH]) {
+      switch (this[DIRECTIONS.NORTH]) {
         case TYPES.WALL:
           return "─";
         case TYPES.DOOR:
@@ -121,7 +121,7 @@ module.exports = Cell = (function() {
       }
     }).call(this);
     cell[7] = (function() {
-      switch (this[DIRECTONS.SOUTH]) {
+      switch (this[DIRECTIONS.SOUTH]) {
         case TYPES.WALL:
           return "─";
         case TYPES.DOOR:
@@ -131,7 +131,7 @@ module.exports = Cell = (function() {
       }
     }).call(this);
     cell[3] = (function() {
-      switch (this[DIRECTONS.WEST]) {
+      switch (this[DIRECTIONS.WEST]) {
         case TYPES.WALL:
           return "│";
         case TYPES.DOOR:
@@ -141,7 +141,7 @@ module.exports = Cell = (function() {
       }
     }).call(this);
     cell[5] = (function() {
-      switch (this[DIRECTONS.EAST]) {
+      switch (this[DIRECTIONS.EAST]) {
         case TYPES.WALL:
           return "│";
         case TYPES.DOOR:
@@ -150,7 +150,7 @@ module.exports = Cell = (function() {
           return " ";
       }
     }).call(this);
-    if (this[DIRECTONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
       cell[0] = "┌";
     } else if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY) {
       cell[0] = "─";
@@ -159,7 +159,7 @@ module.exports = Cell = (function() {
     } else {
       cell[0] = " ";
     }
-    if (this[DIRECTONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
       cell[6] = "└";
     } else if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY) {
       cell[6] = "─";
@@ -168,7 +168,7 @@ module.exports = Cell = (function() {
     } else {
       cell[6] = " ";
     }
-    if (this[DIRECTONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
       cell[8] = "┘";
     } else if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY) {
       cell[8] = "─";
@@ -177,7 +177,7 @@ module.exports = Cell = (function() {
     } else {
       cell[8] = " ";
     }
-    if (this[DIRECTONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
       cell[2] = "┐";
     } else if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY) {
       cell[2] = "─";
@@ -245,13 +245,13 @@ module.exports = Dungeon = (function(superClass) {
   }
 
   Dungeon.prototype.addRoom = function(room, x, y) {
-    var i, len, ref, ref1, rx, ry;
+    var j, len, ref, ref1, rx, ry;
     if (!this.willFit(room, x, y)) {
       throw new Error("Can't place Room at " + x + ", " + y + ": Out of Bounds");
     }
     ref = room.allLocations();
-    for (i = 0, len = ref.length; i < len; i++) {
-      ref1 = ref[i], rx = ref1[0], ry = ref1[1];
+    for (j = 0, len = ref.length; j < len; j++) {
+      ref1 = ref[j], rx = ref1[0], ry = ref1[1];
       this.set(x + rx, y + ry, room.get(rx, ry));
     }
     room.dungeon = this;
@@ -295,18 +295,18 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.roomPlacementScore = function(room, x, y) {
-    var dCell, dX, dY, direction, i, j, len, len1, ref, ref1, roomX, roomY, score;
+    var dCell, dX, dY, direction, j, k, len, len1, ref, ref1, roomX, roomY, score;
     if (!this.willFit(room, x, y)) {
       return -Infinity;
     }
     score = 0;
     ref = room.allLocations();
-    for (i = 0, len = ref.length; i < len; i++) {
-      ref1 = ref[i], roomX = ref1[0], roomY = ref1[1];
+    for (j = 0, len = ref.length; j < len; j++) {
+      ref1 = ref[j], roomX = ref1[0], roomY = ref1[1];
       dX = x + roomX;
       dY = y + roomY;
-      for (j = 0, len1 = DIRECTIONS.length; j < len1; j++) {
-        direction = DIRECTIONS[j];
+      for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
+        direction = DIRECTIONS[k];
         if (this.adjacentIsCorridor(dX, dY, direction)) {
           score--;
         }
@@ -325,14 +325,14 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.generateRooms = function(number, minWidth, maxWidth, minHeight, maxHeight) {
-    var bestScore, bestSpot, count, dX, dY, i, j, len, newScore, ref, ref1, ref2, room;
-    for (count = i = 0, ref = number; 0 <= ref ? i <= ref : i >= ref; count = 0 <= ref ? ++i : --i) {
+    var bestScore, bestSpot, count, dX, dY, j, k, len, newScore, ref, ref1, ref2, room;
+    for (count = j = 0, ref = number; 0 <= ref ? j <= ref : j >= ref; count = 0 <= ref ? ++j : --j) {
       room = new Room(this.Random.next(minWidth, maxWidth), this.Random.next(minHeight, maxHeight));
       bestScore = -Infinity;
       bestSpot = void 0;
       ref1 = this.allLocations();
-      for (j = 0, len = ref1.length; j < len; j++) {
-        ref2 = ref1[j], dX = ref2[0], dY = ref2[1];
+      for (k = 0, len = ref1.length; k < len; k++) {
+        ref2 = ref1[k], dX = ref2[0], dY = ref2[1];
         newScore = this.roomPlacementScore(room, dX, dY);
         if (newScore > bestScore) {
           bestScore = newScore;
@@ -347,13 +347,13 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.addDoors = function() {
-    var dX, dY, direction, i, j, len, len1, rX, rY, ref, ref1, ref2, room;
+    var dX, dY, direction, j, k, len, len1, rX, rY, ref, ref1, ref2, room;
     ref = this.rooms;
-    for (i = 0, len = ref.length; i < len; i++) {
-      room = ref[i];
+    for (j = 0, len = ref.length; j < len; j++) {
+      room = ref[j];
       ref1 = room.location, dX = ref1[0], dY = ref1[1];
-      for (j = 0, len1 = DIRECTIONS.length; j < len1; j++) {
-        direction = DIRECTIONS[j];
+      for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
+        direction = DIRECTIONS[k];
         if (!room.hasDoorOnSide(direction)) {
           ref2 = room.getRandomCellAlongSide(direction, this.Random), rX = ref2[0], rY = ref2[1];
           this.createDoor(dX + rX, dY + rY, direction);
@@ -364,15 +364,15 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.createDenseMaze = function(zigzagyness) {
-    var c, d, defaultCell, direction, i, j, len, len1, ref, ref1, ref2, ref3, valid, x, y;
+    var c, d, defaultCell, direction, j, k, len, len1, ref, ref1, ref2, ref3, valid, x, y;
     defaultCell = {};
-    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-      d = DIRECTIONS[i];
+    for (j = 0, len = DIRECTIONS.length; j < len; j++) {
+      d = DIRECTIONS[j];
       defaultCell[d] = TYPES.WALL;
     }
     ref = this.data;
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      c = ref[j];
+    for (k = 0, len1 = ref.length; k < len1; k++) {
+      c = ref[k];
       c.update(defaultCell);
     }
     this.flagAllCellsAsUnvisited();
@@ -390,6 +390,21 @@ module.exports = Dungeon = (function(superClass) {
         this.visitCell(x, y);
         valid = this.validWalkDirections(x, y);
       }
+    }
+    return this;
+  };
+
+  Dungeon.prototype.sparsifyMaze = function(sparseness) {
+    var cell, cellsToRemove, deadEnds, i, j, ref;
+    cellsToRemove = Math.ceil((sparseness / 100) * (this.width + this.height));
+    for (i = j = 0, ref = cellsToRemove; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      deadEnds = this.deadEndLocations();
+      if (deadEnds.length === 0) {
+        break;
+      }
+      cell = this.get.apply(this, deadEnds[this.Random.next(0, deadEnds.length - 1)]);
+      console.log(cell);
+      cell.setSide(cell.deadEndDirection(), TYPES.WALL);
     }
     return this;
   };
@@ -458,7 +473,7 @@ generate = function(width, height, zigzagyness, sparseness, deadendRemovalness, 
     seed = null;
   }
   dungeon = new Dungeon(width, height, seed);
-  return dungeon.createDenseMaze(zigzagyness);
+  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness);
 };
 
 generate.DIRECTIONS = require('./directions');
@@ -697,21 +712,21 @@ Map = (function(superClass) {
 
 
 /*
-  If I were to place mapA into mapB at x and y, how many cells would overlap?
+  If I were to place aMap into bMap at x and y, how many cells would overlap?
  */
 
-Map.overlap = function(mapA, mapB, x, y) {
-  var aX, aY, bX, bY, cellsA, cellsB, i, j, len, len1, overlaps, ref, ref1;
-  cellsA = mapA.nonEmptyLocations();
-  cellsB = mapB.nonEmptyLocations();
+Map.overlap = function(aMap, bMap, x, y) {
+  var aCells, bCells, i, j, len, len1, overlaps, ref, ref1, xa, xb, ya, yb;
+  aCells = aMap.nonEmptyLocations();
+  bCells = bMap.nonEmptyLocations();
   overlaps = 0;
-  for (i = 0, len = cellsA.length; i < len; i++) {
-    ref = cellsA[i], aX = ref[0], aY = ref[1];
-    aX += x;
-    aY += y;
-    for (j = 0, len1 = cellsB.length; j < len1; j++) {
-      ref1 = cellsB[j], bX = ref1[0], bY = ref1[1];
-      if (aX === bX && aY === bY) {
+  for (i = 0, len = aCells.length; i < len; i++) {
+    ref = aCells[i], xa = ref[0], ya = ref[1];
+    xa += x;
+    ya += y;
+    for (j = 0, len1 = bCells.length; j < len1; j++) {
+      ref1 = bCells[j], xb = ref1[0], yb = ref1[1];
+      if (xa === xb && ya === yb) {
         overlaps++;
       }
     }

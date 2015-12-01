@@ -5,7 +5,7 @@ generate = (width=25, height=25, zigzagyness=30, sparseness=70, deadendRemovalne
 
   dungeon
     .createDenseMaze(zigzagyness)
-  # dungeon.parsifyMaze()
+    .sparsifyMaze(sparseness)
   # dungeon.removeDeadEnds()
   # dungeon.generateRooms()
   # dungeon.addDoors()
