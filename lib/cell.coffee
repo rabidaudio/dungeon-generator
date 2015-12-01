@@ -1,4 +1,4 @@
-DIRECTONS = require './directions'
+DIRECTIONS = require './directions'
 TYPES = require './types'
 
 ###
@@ -33,12 +33,12 @@ module.exports = class Cell
 
   typeCount: (type) ->
     count = 0
-    (count++ if @[d] is type) for d in DIRECTONS
+    (count++ if @[d] is type) for d in DIRECTIONS
     count
 
   deadEndDirection: ->
     return false unless @isDeadEnd()
-    for d in DIRECTONS
+    for d in DIRECTIONS
       return d if @[d] is TYPES.EMPTY
 
   setSide: (direction, value) ->
@@ -46,7 +46,7 @@ module.exports = class Cell
     @_blank = false
 
   update: (data) ->
-    for direction in DIRECTONS
+    for direction in DIRECTIONS
       @[direction] = if data[direction]? then data[direction] else TYPES.EMPTY
     @_blank = false
 
@@ -59,36 +59,36 @@ module.exports = class Cell
     #center
     cell[4] = "*"
     #edges
-    cell[1] = switch @[DIRECTONS.NORTH]
+    cell[1] = switch @[DIRECTIONS.NORTH]
       when TYPES.WALL  then "─"
       when TYPES.DOOR  then "~"
       when TYPES.EMPTY then " "
-    cell[7] = switch @[DIRECTONS.SOUTH]
+    cell[7] = switch @[DIRECTIONS.SOUTH]
       when TYPES.WALL  then "─"
       when TYPES.DOOR  then "~"
       when TYPES.EMPTY then " "
-    cell[3] = switch @[DIRECTONS.WEST]
+    cell[3] = switch @[DIRECTIONS.WEST]
       when TYPES.WALL  then "│"
       when TYPES.DOOR  then "~"
       when TYPES.EMPTY then " "
-    cell[5] = switch @[DIRECTONS.EAST]
+    cell[5] = switch @[DIRECTIONS.EAST]
       when TYPES.WALL  then "│"
       when TYPES.DOOR  then "~"
       when TYPES.EMPTY then " "
     #corners
-    if @[DIRECTONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[0] = "┌"
+    if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[0] = "┌"
     else if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY then cell[0] = "─"
     else if @[DIRECTIONS.WEST]  isnt TYPES.EMPTY then cell[0] = "│"
     else cell[0] = " "
-    if @[DIRECTONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[6] = "└"
+    if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.WEST] isnt TYPES.EMPTY then cell[6] = "└"
     else if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY then cell[6] = "─"
     else if @[DIRECTIONS.WEST]  isnt TYPES.EMPTY then cell[6] = "│"
     else cell[6] = " "
-    if @[DIRECTONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[8] = "┘"
+    if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[8] = "┘"
     else if @[DIRECTIONS.SOUTH] isnt TYPES.EMPTY then cell[8] = "─"
     else if @[DIRECTIONS.EAST]  isnt TYPES.EMPTY then cell[8] = "│"
     else cell[8] = " "
-    if @[DIRECTONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[2] = "┐"
+    if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY and @[DIRECTIONS.EAST] isnt TYPES.EMPTY then cell[2] = "┐"
     else if @[DIRECTIONS.NORTH] isnt TYPES.EMPTY then cell[2] = "─"
     else if @[DIRECTIONS.EAST]  isnt TYPES.EMPTY then cell[2] = "│"
     else cell[2] = " "

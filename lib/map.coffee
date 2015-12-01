@@ -18,15 +18,15 @@ class Map extends ArrayGrid
       when DIRECTIONS.SOUTH then return ([x, @height-1] for x in [0..@width-1])
       when DIRECTIONS.EAST  then return ([@width-1, y] for y in [0..@height-1])
       when DIRECTIONS.WEST  then return ([0, y] for y in [0..@height-1])
-      else throw new Error("Invalid direction: #{direction}")
+      else throw new Error "Invalid direction: #{direction}"
 
   setCellSide: (x,y, direction, value) -> @get(x,y).setSide direction, value
 
-  allLocations:      -> @coordsAt(index) for index in [0..@data.length-1]
+  allLocations: -> @coordsAt(index) for index in [0..@data.length-1]
 
   nonEmptyLocations: -> @coordsAt(index) for cell, index in @data when not cell.isBlank()
 
-  deadEndLocations:  -> @coordsAt(index) for cell, index in @data when cell.isDeadEnd()
+  deadEndLocations: -> @coordsAt(index) for cell, index in @data when cell.isDeadEnd()
 
   corridorLocations: -> @coordsAt(index) for cell, index in @data when cell.corridor
 
@@ -34,11 +34,11 @@ class Map extends ArrayGrid
 
   getAdjacent: (x, y, direction) ->
     switch direction
-      when DIRECTIONS.NORTH then return [x, y-1]
-      when DIRECTIONS.SOUTH then return [x, y+1]
-      when DIRECTIONS.WEST  then return [x-1, y]
-      when DIRECTIONS.EAST  then return [x+1, y]
-      else throw new Error("Invalid direction: #{direction}")
+      when DIRECTIONS.NORTH then return [x,  y-1]
+      when DIRECTIONS.SOUTH then return [x,  y+1]
+      when DIRECTIONS.WEST  then return [x-1,  y]
+      when DIRECTIONS.EAST  then return [x+1,  y]
+      else throw new Error "Invalid direction: #{direction}"
 
   getAdjacentCell: (x, y, direction) -> @get @getAdjacent(x, y, direction)...
 
@@ -48,23 +48,23 @@ class Map extends ArrayGrid
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
-      when DIRECTIONS.NORTH then return [ generator.next(0, @width-1), 0 ]
-      when DIRECTIONS.SOUTH then return [ generator.next(0, @width-1), @height-1 ]
-      when DIRECTIONS.WEST  then return [ 0, generator.next(0, @height-1) ]
-      when DIRECTIONS.EAST  then return [ @width-1, generator.next(0, @height-1) ]
-      else throw new Error("Invalid direction: #{direction}")
+      when DIRECTIONS.NORTH then return [generator.next(0, @width-1), 0]
+      when DIRECTIONS.SOUTH then return [generator.next(0, @width-1), @height-1]
+      when DIRECTIONS.WEST  then return [0, generator.next(0, @height-1)]
+      when DIRECTIONS.EAST  then return [@width-1, generator.next(0, @height-1)]
+      else throw new Error "Invalid direction: #{direction}"
 
   print: ->
     map = ""
     for y in [0..@height-1]
       for x in [0..@width-1]
         cell = @get x, y
-        if cell.isBlank() then map+="."
-        else if cell.isEmpty() then  map+= " "
-        else if cell.corridor then map+="X"
-        else if cell.doorCount() > 0 then map+='\\'
-        else map+= "#"
-      map+="\n"
+        if cell.isBlank() then map += "."
+        else if cell.isEmpty() then  map +=  " "
+        else if cell.corridor then map += "X"
+        else if cell.doorCount() > 0 then map += '\\'
+        else map += "#"
+      map += "\n"
     map
 
   printFull: ->
@@ -73,24 +73,24 @@ class Map extends ArrayGrid
       rows = ["","",""]
       for x in [0..@width-1]
         current = @get(x,y).print().split("\n")
-        rows[0]+=current[0]
-        rows[1]+=current[1]
-        rows[2]+=current[2]
-      map+=rows.join("\n")+"\n"
+        rows[0] += current[0]
+        rows[1] += current[1]
+        rows[2] += current[2]
+      map += rows.join("\n") + "\n"
     map
 
 ###
-  If I were to place mapA into mapB at x and y, how many cells would overlap?
+  If I were to place aMap into bMap at x and y, how many cells would overlap?
 ###
-Map.overlap = (mapA, mapB, x, y) ->
-  cellsA = mapA.nonEmptyLocations()
-  cellsB = mapB.nonEmptyLocations()
+Map.overlap = (aMap, bMap, x, y) ->
+  aCells = aMap.nonEmptyLocations()
+  bCells = bMap.nonEmptyLocations()
   overlaps = 0
-  for [aX, aY] in cellsA
-    aX+=x
-    aY+=y
-    for [bX, bY] in cellsB
-      overlaps++ if aX is bX and aY is bY
+  for [xa, ya] in aCells
+    xa += x
+    ya += y
+    for [xb, yb] in bCells
+      overlaps++ if xa is xb and ya is yb
   overlaps
 
 module.exports = Map

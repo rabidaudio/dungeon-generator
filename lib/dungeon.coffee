@@ -45,9 +45,9 @@ module.exports = class Dungeon extends VisitableMap
       dCell = @get(dX, dY)
       if not dCell.isBlank()
         #loose 3 points if the cell overlaps an existing corridor
-        score-=3 if dCell.corridor
+        score -= 3 if dCell.corridor
         # loose 100 points if the cell overlaps any existing room cells
-        score-=100 if not dCell.corridor
+        score -= 100 if not dCell.corridor
     return score
 
   generateRooms: (number, minWidth, maxWidth, minHeight, maxHeight) ->
