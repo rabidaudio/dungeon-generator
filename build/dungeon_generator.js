@@ -194,34 +194,23 @@ module.exports = Cell = (function() {
 })();
 
 
-},{"./directions":2,"./types":8}],2:[function(require,module,exports){
+},{"./directions":2,"./types":9}],2:[function(require,module,exports){
+var DIRECTIONS, Enum;
 
-/*
-  The purpose of this is to hide these magic strings behind variable names.
-  It also allows us to use the `for x in...` pattern.
- */
-var DIRECTIONS;
+Enum = require('./enum');
 
-DIRECTIONS = ['north', 'south', 'east', 'west'];
-
-DIRECTIONS.NORTH = DIRECTIONS[0];
-
-DIRECTIONS.SOUTH = DIRECTIONS[1];
-
-DIRECTIONS.EAST = DIRECTIONS[2];
-
-DIRECTIONS.WEST = DIRECTIONS[3];
+DIRECTIONS = new Enum('north', 'south', 'east', 'west');
 
 DIRECTIONS.opposite = function(dir) {
   switch (dir) {
-    case DIRECTIONS.NORTH:
-      return DIRECTIONS.SOUTH;
-    case DIRECTIONS.SOUTH:
-      return DIRECTIONS.NORTH;
-    case DIRECTIONS.EAST:
-      return DIRECTIONS.WEST;
-    case DIRECTIONS.WEST:
-      return DIRECTIONS.EAST;
+    case this.NORTH:
+      return this.SOUTH;
+    case this.SOUTH:
+      return this.NORTH;
+    case this.EAST:
+      return this.WEST;
+    case this.WEST:
+      return this.EAST;
     default:
       throw "Invalid direction " + dir;
   }
@@ -230,7 +219,7 @@ DIRECTIONS.opposite = function(dir) {
 module.exports = DIRECTIONS;
 
 
-},{}],3:[function(require,module,exports){
+},{"./enum":4}],3:[function(require,module,exports){
 var DIRECTIONS, Dungeon, Room, TYPES, VisitableMap,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -410,7 +399,40 @@ module.exports = Dungeon = (function(superClass) {
 })(VisitableMap);
 
 
-},{"./directions":2,"./room":7,"./types":8,"./visitable-map":9}],4:[function(require,module,exports){
+},{"./directions":2,"./room":8,"./types":9,"./visitable-map":10}],4:[function(require,module,exports){
+
+/*
+An enum is just an array of strings which also sets the values as all-caps parameters.
+This allows for both for-each loops and named keys.
+
+For example:
+  e = new Enum 'one', 'two'
+  e.ONE # => 'one'
+  e.TWO # => 'two'
+  console.log i for i in e #=> 'one', 'two'
+ */
+var Enum,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+module.exports = Enum = (function(superClass) {
+  extend(Enum, superClass);
+
+  function Enum() {
+    var field, i, len;
+    this.push.apply(this, arguments);
+    for (i = 0, len = this.length; i < len; i++) {
+      field = this[i];
+      this[field.toUpperCase()] = field;
+    }
+  }
+
+  return Enum;
+
+})(Array);
+
+
+},{}],5:[function(require,module,exports){
 var Dungeon, generate;
 
 Dungeon = require('./dungeon');
@@ -446,7 +468,7 @@ generate.TYPES = require('./types');
 module.exports = generate;
 
 
-},{"./directions":2,"./dungeon":3,"./types":8}],5:[function(require,module,exports){
+},{"./directions":2,"./dungeon":3,"./types":9}],6:[function(require,module,exports){
 var ArrayGrid, Cell, DIRECTIONS, Map,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -700,7 +722,7 @@ Map.overlap = function(mapA, mapB, x, y) {
 module.exports = Map;
 
 
-},{"./cell":1,"./directions":2,"array-grid":10}],6:[function(require,module,exports){
+},{"./cell":1,"./directions":2,"array-grid":11}],7:[function(require,module,exports){
 var MersenneTwister, RandomJS;
 
 RandomJS = require('random-js');
@@ -731,7 +753,7 @@ module.exports = MersenneTwister = (function() {
 })();
 
 
-},{"random-js":11}],7:[function(require,module,exports){
+},{"random-js":12}],8:[function(require,module,exports){
 var DIRECTONS, Map, Room, TYPES,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -799,26 +821,15 @@ module.exports = Room = (function(superClass) {
 })(Map);
 
 
-},{"./directions":2,"./map":5,"./types":8}],8:[function(require,module,exports){
+},{"./directions":2,"./map":6,"./types":9}],9:[function(require,module,exports){
+var Enum;
 
-/*
-  The purpose of this is to hide these magic strings behind variable names.
-  It also allows us to use the `for x in...` pattern.
- */
-var TYPES;
+Enum = require('./enum');
 
-TYPES = ['door', 'wall', 'empty'];
-
-TYPES.DOOR = TYPES[0];
-
-TYPES.WALL = TYPES[1];
-
-TYPES.EMPTY = TYPES[2];
-
-module.exports = TYPES;
+module.exports = new Enum('door', 'wall', 'empty');
 
 
-},{}],9:[function(require,module,exports){
+},{"./enum":4}],10:[function(require,module,exports){
 var DIRECTIONS, MTRandom, Map, TYPES, VisitableMap,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -934,7 +945,7 @@ module.exports = VisitableMap = (function(superClass) {
 })(Map);
 
 
-},{"./directions":2,"./map":5,"./random":6,"./types":8}],10:[function(require,module,exports){
+},{"./directions":2,"./map":6,"./random":7,"./types":9}],11:[function(require,module,exports){
 module.exports = ArrayGrid
 
 function ArrayGrid(data, shape, stride, offset){
@@ -998,7 +1009,7 @@ ArrayGrid.prototype.coordsAt = function(index){
     ]
   }
 }
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*jshint eqnull:true*/
 (function (root) {
   "use strict";
@@ -1715,5 +1726,5 @@ ArrayGrid.prototype.coordsAt = function(index){
     root[GLOBAL_KEY] = Random;
   }
 }(this));
-},{}]},{},[4])(4)
+},{}]},{},[5])(5)
 });
