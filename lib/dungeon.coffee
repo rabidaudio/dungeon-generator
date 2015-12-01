@@ -102,7 +102,16 @@ module.exports = class Dungeon extends VisitableMap
       deadEnds = @deadEndLocations()
       break if deadEnds.length is 0
       cell = @get deadEnds[@Random.next(0, deadEnds.length-1)]... #get random dead end
-      console.log cell
       cell.setSide cell.deadEndDirection(), TYPES.WALL #fill it in
     return @
 
+  removeDeadEnds: (deadendRemovalness) ->
+    for deadEnd in @deadEndLocations()
+      if @Random.next(0, 100) < deadendRemovalness
+        cell = @get deadEnd...
+        while cell.isDeadEnd()
+          validDirections = (d for d in DIRECTIONS when @hasAdjacent(deadEnd..., d) and d isnt DIRECTIONS.opposite cell.deadEndDirection() )
+          d = validDirections[@Random.next(0, validDirections.length-1)]
+          @createCorridor deadEnd..., d
+          cell = @getAdjacentCell deadEnd..., d
+    return @

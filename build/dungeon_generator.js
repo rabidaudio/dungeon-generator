@@ -403,8 +403,35 @@ module.exports = Dungeon = (function(superClass) {
         break;
       }
       cell = this.get.apply(this, deadEnds[this.Random.next(0, deadEnds.length - 1)]);
-      console.log(cell);
       cell.setSide(cell.deadEndDirection(), TYPES.WALL);
+    }
+    return this;
+  };
+
+  Dungeon.prototype.removeDeadEnds = function(deadendRemovalness) {
+    var cell, d, deadEnd, j, len, ref, validDirections;
+    ref = this.deadEndLocations();
+    for (j = 0, len = ref.length; j < len; j++) {
+      deadEnd = ref[j];
+      if (this.Random.next(0, 100) > deadendRemovalness) {
+        cell = this.get.apply(this, deadEnd);
+        while (cell.isDeadEnd()) {
+          validDirections = (function() {
+            var k, len1, results;
+            results = [];
+            for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
+              d = DIRECTIONS[k];
+              if (this.hasAdjacent.apply(this, slice.call(deadEnd).concat([d])) && d !== DIRECTIONS.opposite(cell.deadEndDirection())) {
+                results.push(d);
+              }
+            }
+            return results;
+          }).call(this);
+          d = validDirections[this.Random.next(0, validDirections.length - 1)];
+          cell.setSide(d, TYPES.EMPTY);
+          cell = cell.getAdjacentCell.apply(cell, slice.call(deadEnd).concat([d]));
+        }
+      }
     }
     return this;
   };
@@ -473,7 +500,7 @@ generate = function(width, height, zigzagyness, sparseness, deadendRemovalness, 
     seed = null;
   }
   dungeon = new Dungeon(width, height, seed);
-  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness);
+  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness);
 };
 
 generate.DIRECTIONS = require('./directions');
