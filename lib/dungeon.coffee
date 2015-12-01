@@ -51,7 +51,7 @@ module.exports = class Dungeon extends VisitableMap
     return score
 
   generateRooms: (number, minWidth, maxWidth, minHeight, maxHeight) ->
-    for count in [0..number]
+    for count in [0...number]
       room = new Room @Random.next(minWidth, maxWidth), @Random.next(minHeight, maxHeight)
       bestScore = -Infinity
       bestSpot = undefined

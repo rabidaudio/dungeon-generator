@@ -413,7 +413,7 @@ module.exports = Dungeon = (function(superClass) {
     ref = this.deadEndLocations();
     for (j = 0, len = ref.length; j < len; j++) {
       deadEnd = ref[j];
-      if (this.Random.next(0, 100) > deadendRemovalness) {
+      if (this.Random.next(0, 100) < deadendRemovalness) {
         cell = this.get.apply(this, deadEnd);
         while (cell.isDeadEnd()) {
           validDirections = (function() {
@@ -428,8 +428,8 @@ module.exports = Dungeon = (function(superClass) {
             return results;
           }).call(this);
           d = validDirections[this.Random.next(0, validDirections.length - 1)];
-          cell.setSide(d, TYPES.EMPTY);
-          cell = cell.getAdjacentCell.apply(cell, slice.call(deadEnd).concat([d]));
+          this.createCorridor.apply(this, slice.call(deadEnd).concat([d]));
+          cell = this.getAdjacentCell.apply(this, slice.call(deadEnd).concat([d]));
         }
       }
     }
@@ -479,28 +479,11 @@ var Dungeon, generate;
 
 Dungeon = require('./dungeon');
 
-generate = function(width, height, zigzagyness, sparseness, deadendRemovalness, seed) {
-  var dungeon;
-  if (width == null) {
-    width = 25;
-  }
-  if (height == null) {
-    height = 25;
-  }
-  if (zigzagyness == null) {
-    zigzagyness = 30;
-  }
-  if (sparseness == null) {
-    sparseness = 70;
-  }
-  if (deadendRemovalness == null) {
-    deadendRemovalness = 50;
-  }
-  if (seed == null) {
-    seed = null;
-  }
+generate = function(ops) {
+  var deadendRemovalness, dungeon, height, maxHeight, maxWidth, minHeight, minWidth, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, roomCount, seed, sparseness, width, zigzagyness;
+  width = (ref = opts.width) != null ? ref : 25, height = (ref1 = opts.height) != null ? ref1 : 25, zigzagyness = (ref2 = opts.zigzagyness) != null ? ref2 : 30, sparseness = (ref3 = opts.sparseness) != null ? ref3 : 70, deadendRemovalness = (ref4 = opts.deadendRemovalness) != null ? ref4 : 50, roomCount = (ref5 = opts.roomCount) != null ? ref5 : 10, minWidth = (ref6 = opts.minWidth) != null ? ref6 : 1, maxWidth = (ref7 = opts.maxWidth) != null ? ref7 : 5, minHeight = (ref8 = opts.minHeight) != null ? ref8 : 1, maxHeight = (ref9 = opts.maxHeight) != null ? ref9 : 5, seed = (ref10 = opts.seed) != null ? ref10 : null;
   dungeon = new Dungeon(width, height, seed);
-  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness);
+  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness).generateRooms(roomCount, minWidth, maxWidth, minHeight, maxHeight).addDoors();
 };
 
 generate.DIRECTIONS = require('./directions');
