@@ -267,20 +267,20 @@ module.exports = Dungeon = (function(superClass) {
     }
   };
 
-  Dungeon.prototype.createDoor = function(x, y, direction) {
+  Dungeon.prototype.setBothSides = function(x, y, direction, type) {
     if (!this.inBounds(x, y) || !this.hasAdjacent(x, y, direction)) {
-      throw new Error("Can't add " + direction + " door at " + x + ", " + y + ": Out of Bounds");
+      throw new Error("Can't add " + direction + " " + type + " at " + x + ", " + y + ": Out of Bounds");
     }
-    this.setCellSide(x, y, direction, TYPES.DOOR);
-    return this.setCellSide.apply(this, slice.call(this.getAdjacent(x, y, direction)).concat([DIRECTIONS.opposite(direction)], [TYPES.DOOR]));
+    this.setCellSide(x, y, direction, type);
+    return this.setCellSide.apply(this, slice.call(this.getAdjacent(x, y, direction)).concat([DIRECTIONS.opposite(direction)], [type]));
+  };
+
+  Dungeon.prototype.createDoor = function(x, y, direction) {
+    return this.setBothSides(x, y, direction, TYPES.DOOR);
   };
 
   Dungeon.prototype.createCorridor = function(x, y, direction) {
-    if (!this.inBounds(x, y) || !this.adjacentInBounds(x, y, direction)) {
-      throw new Error("Can't edit cell at " + x + ", " + y + ": Out of Bounds");
-    }
-    this.get(x, y).setSide(direction, TYPES.EMPTY);
-    this.getAdjacentCell(x, y, direction).setSide(DIRECTIONS.opposite(direction), TYPES.EMPTY);
+    this.setBothSides(x, y, direction, TYPES.EMPTY);
     return this.getAdjacent(x, y, direction);
   };
 
@@ -326,7 +326,7 @@ module.exports = Dungeon = (function(superClass) {
 
   Dungeon.prototype.generateRooms = function(number, minWidth, maxWidth, minHeight, maxHeight) {
     var bestScore, bestSpot, count, dX, dY, j, k, len, newScore, ref, ref1, ref2, room;
-    for (count = j = 0, ref = number; 0 <= ref ? j <= ref : j >= ref; count = 0 <= ref ? ++j : --j) {
+    for (count = j = 0, ref = number; 0 <= ref ? j < ref : j > ref; count = 0 <= ref ? ++j : --j) {
       room = new Room(this.Random.next(minWidth, maxWidth), this.Random.next(minHeight, maxHeight));
       bestScore = -Infinity;
       bestSpot = void 0;
@@ -383,7 +383,7 @@ module.exports = Dungeon = (function(superClass) {
       ref2 = this.pickRandomVisitedCell(), x = ref2[0], y = ref2[1];
       valid = this.validWalkDirections(x, y);
       while (valid.length > 0 && !this.allCellsVisited()) {
-        if (valid.indexOf(direction) === -1 || this.Random.next(0, 100) > zigzagyness) {
+        if (valid.indexOf(direction) === -1 || this.Random.next(0, 100) < zigzagyness) {
           direction = valid[this.Random.next(0, valid.length - 1)];
         }
         ref3 = this.createCorridor(x, y, direction), x = ref3[0], y = ref3[1];
@@ -395,7 +395,7 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.sparsifyMaze = function(sparseness) {
-    var cell, cellsToRemove, deadEnds, i, j, ref;
+    var cell, cellsToRemove, deadEndDirection, deadEnds, i, j, ref;
     cellsToRemove = Math.ceil((sparseness / 100) * (this.width + this.height));
     for (i = j = 0, ref = cellsToRemove; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
       deadEnds = this.deadEndLocations();
@@ -403,7 +403,11 @@ module.exports = Dungeon = (function(superClass) {
         break;
       }
       cell = this.get.apply(this, deadEnds[this.Random.next(0, deadEnds.length - 1)]);
-      cell.setSide(cell.deadEndDirection(), TYPES.WALL);
+      deadEndDirection = cell.deadEndDirection();
+      cell.setSide(deadEndDirection, TYPES.WALL);
+      if (this.hasAdjacent.apply(this, slice.call(deadEnd).concat([deadEndDirection]))) {
+        this.getAdjacentCell.apply(this, slice.call(deadEnd).concat([deadEndDirection])).setSide(DIRECTIONS.opposite(deadEndDirection, TYPES.WALL));
+      }
     }
     return this;
   };
@@ -479,11 +483,14 @@ var Dungeon, generate;
 
 Dungeon = require('./dungeon');
 
-generate = function(ops) {
+generate = function(opts) {
   var deadendRemovalness, dungeon, height, maxHeight, maxWidth, minHeight, minWidth, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, roomCount, seed, sparseness, width, zigzagyness;
+  if (opts == null) {
+    opts = {};
+  }
   width = (ref = opts.width) != null ? ref : 25, height = (ref1 = opts.height) != null ? ref1 : 25, zigzagyness = (ref2 = opts.zigzagyness) != null ? ref2 : 30, sparseness = (ref3 = opts.sparseness) != null ? ref3 : 70, deadendRemovalness = (ref4 = opts.deadendRemovalness) != null ? ref4 : 50, roomCount = (ref5 = opts.roomCount) != null ? ref5 : 10, minWidth = (ref6 = opts.minWidth) != null ? ref6 : 1, maxWidth = (ref7 = opts.maxWidth) != null ? ref7 : 5, minHeight = (ref8 = opts.minHeight) != null ? ref8 : 1, maxHeight = (ref9 = opts.maxHeight) != null ? ref9 : 5, seed = (ref10 = opts.seed) != null ? ref10 : null;
   dungeon = new Dungeon(width, height, seed);
-  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness).generateRooms(roomCount, minWidth, maxWidth, minHeight, maxHeight).addDoors();
+  return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness).generateRooms(roomCount, minWidth, maxWidth, minHeight, maxHeight);
 };
 
 generate.DIRECTIONS = require('./directions');

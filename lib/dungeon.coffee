@@ -19,17 +19,18 @@ module.exports = class Dungeon extends VisitableMap
   adjacentIsCorridor: (x, y, direction) ->
     if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
-  createDoor: (x, y, direction) ->
+  setBothSides: (x, y, direction, type) ->
     if not @inBounds(x,y) or not @hasAdjacent(x,y,direction)
-      throw new Error "Can't add #{direction} door at #{x}, #{y}: Out of Bounds"
-    @setCellSide x, y, direction, TYPES.DOOR
-    @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), TYPES.DOOR
+      throw new Error "Can't add #{direction} #{type} at #{x}, #{y}: Out of Bounds"
+    @setCellSide x, y, direction, type
+    @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), type
+
+  createDoor: (x, y, direction) ->
+    @setBothSides x, y, direction, TYPES.DOOR
+
 
   createCorridor: (x, y, direction) ->
-    if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
-      throw new Error "Can't edit cell at #{x}, #{y}: Out of Bounds"
-    @get(x,y).setSide(direction, TYPES.EMPTY)
-    @getAdjacentCell(x,y,direction).setSide(DIRECTIONS.opposite(direction), TYPES.EMPTY)
+    @setBothSides x, y, direction, TYPES.EMPTY
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -88,7 +89,7 @@ module.exports = class Dungeon extends VisitableMap
       valid = @validWalkDirections(x, y)
       while valid.length > 0 and not @allCellsVisited()
         #change direction if neccessary
-        if valid.indexOf(direction) is -1 or @Random.next(0, 100) > zigzagyness
+        if valid.indexOf(direction) is -1 or @Random.next(0, 100) < zigzagyness
           direction = valid[@Random.next(0, valid.length-1)]
         [x, y] = @createCorridor x, y, direction
         @visitCell x, y
@@ -101,8 +102,12 @@ module.exports = class Dungeon extends VisitableMap
     for i in [0..cellsToRemove]
       deadEnds = @deadEndLocations()
       break if deadEnds.length is 0
-      cell = @get deadEnds[@Random.next(0, deadEnds.length-1)]... #get random dead end
-      cell.setSide cell.deadEndDirection(), TYPES.WALL #fill it in
+      deadEnd = deadEnds[@Random.next(0, deadEnds.length-1)] #get random dead end
+      cell = @get deadEnd...
+      deadEndDirection = cell.deadEndDirection()
+      cell.setSide deadEndDirection, TYPES.WALL #fill it in
+      if @hasAdjacent deadEnd..., DIRECTIONS.opposite(deadEndDirection)
+        @getAdjacentCell(deadEnd..., DIRECTIONS.opposite(deadEndDirection)).setSide deadEndDirection, TYPES.WALL
     return @
 
   removeDeadEnds: (deadendRemovalness) ->

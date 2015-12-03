@@ -44,15 +44,26 @@ describe 'Dungeon Generator', ->
       expect(blockCorridor).to.be.greaterThan blockRoom
 
 
-# describe "Integration Test", ->
-#   SEED = 8675309
+describe "Generation", ->
+  SEED = "8675309"
+  dungeon = new Dungeon(25, 25, SEED)
 
-#   it "should generate the proper default value dungeon", ->
-#     dungeon = Generator(25, 25, 30, 70, 50, SEED)
+  it "should generate the proper default values for the dungeon", ->
+    expect(dungeon.width).to.equal 25
+    expect(dungeon.height).to.equal 25
+    expect(dungeon.rooms).to.be.empty
+    expect(cell.isEmpty()).to.equal true for cell in dungeon.data
 
-#   it "should generate zigzaggy dungeons", ->
+  it "should generate zigzaggy dungeons", ->
+    dungeon.createDenseMaze(30)
+    expect(dungeon.rooms).to.be.empty
+    # walls = (cell.wallCount() for cell in dungeon.data).reduce( (a,b) -> a+b )
+    # more_zigzaggy_dungeon = new Dungeon(25, 25, SEED).createDenseMaze(90)
+    # more_zigzaggy_walls = (cell.wallCount() for cell in more_zigzaggy_dungeon.data).reduce( (a,b) -> a+b )
+    # expect(more_zigzaggy_walls).to.be.greaterThan walls
+    # TODO how to measure zigzaggyness
 
-#   it "should generate sparse dungeons", ->
+  it "should generate sparse dungeons", ->
 
-#   it "should generate dungeons with lots of dead-ends", ->
-#   
+  it "should generate dungeons with dead-ends", ->
+  
