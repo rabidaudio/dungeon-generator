@@ -1,5 +1,5 @@
-DIRECTIONS = require './directions'
-TYPES = require './types'
+Direction = require './direction'
+Type = require './type'
 VisitableMap = require './visitable-map'
 Room = require './room'
 
@@ -23,14 +23,14 @@ module.exports = class Dungeon extends VisitableMap
     if not @inBounds(x,y) or not @hasAdjacent(x,y,direction)
       throw new Error "Can't add #{direction} #{type} at #{x}, #{y}: Out of Bounds"
     @setCellSide x, y, direction, type
-    @setCellSide @getAdjacent(x,y,direction)..., DIRECTIONS.opposite(direction), type
+    @setCellSide @getAdjacent(x,y,direction)..., Direction.opposite(direction), type
 
   createDoor: (x, y, direction) ->
-    @setBothSides x, y, direction, TYPES.DOOR
+    @setBothSides x, y, direction, Type.DOOR
 
 
   createCorridor: (x, y, direction) ->
-    @setBothSides x, y, direction, TYPES.EMPTY
+    @setBothSides x, y, direction, Type.EMPTY
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -42,7 +42,7 @@ module.exports = class Dungeon extends VisitableMap
       dX = x + roomX
       dY = y + roomY
       #loose 1 point for each adjacent corridor to the cell
-      (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in DIRECTIONS
+      (score-- if @adjacentIsCorridor(dX, dY, direction)) for direction in Direction
       dCell = @get(dX, dY)
       if not dCell.isBlank()
         #loose 3 points if the cell overlaps an existing corridor
@@ -68,7 +68,7 @@ module.exports = class Dungeon extends VisitableMap
   addDoors: ->
     for room in @rooms
       [dX, dY] = room.location
-      for direction in DIRECTIONS
+      for direction in Direction
         if not room.hasDoorOnSide direction
           [rX, rY] = room.getRandomCellAlongSide direction, @Random
           @createDoor dX+rX, dY+rY, direction
@@ -77,19 +77,19 @@ module.exports = class Dungeon extends VisitableMap
   createDenseMaze: (zigzagyness) ->
     #fill all cells with walls
     defaultCell = {}
-    defaultCell[d] = TYPES.WALL for d in DIRECTIONS
+    defaultCell[d] = Type.WALL for d in Direction
     c.update(defaultCell) for c in @data
 
     @flagAllCellsAsUnvisited()
     [x, y] = @pickRandomUnvisitedCell()
     @visitCell x, y
-    direction = DIRECTIONS.NORTH
+    direction = Direction.NORTH
     until @allCellsVisited()
       [x, y] = @pickRandomVisitedCell()
       valid = @validWalkDirections(x, y)
       while valid.length > 0 and not @allCellsVisited()
         #change direction if neccessary
-        if valid.indexOf(direction) is -1 or @Random.next(0, 100) < zigzagyness
+        if valid.indexOf(direction) is -1 or @Random.next(1, 99) < zigzagyness
           direction = valid[@Random.next(0, valid.length-1)]
         [x, y] = @createCorridor x, y, direction
         @visitCell x, y
@@ -98,25 +98,24 @@ module.exports = class Dungeon extends VisitableMap
 
   sparsifyMaze: (sparseness) ->
     # Calculate the number of cells to remove as a percentage of the total number of cells in the dungeon
-    cellsToRemove = Math.ceil((sparseness/100)*(@width + @height))
-    for i in [0..cellsToRemove]
+    cellsToRemove = Math.ceil((sparseness/100)*(@width * @height))
+    for i in [0...cellsToRemove]
       deadEnds = @deadEndLocations()
       break if deadEnds.length is 0
-      deadEnd = deadEnds[@Random.next(0, deadEnds.length-1)] #get random dead end
-      cell = @get deadEnd...
+      [deadEndX, deadEndY] = deadEnds[@Random.next(0, deadEnds.length-1)] #get random dead end
+      cell = @get deadEndX, deadEndY
       deadEndDirection = cell.deadEndDirection()
-      cell.setSide deadEndDirection, TYPES.WALL #fill it in
-      if @hasAdjacent deadEnd..., DIRECTIONS.opposite(deadEndDirection)
-        @getAdjacentCell(deadEnd..., DIRECTIONS.opposite(deadEndDirection)).setSide deadEndDirection, TYPES.WALL
+      @setBothSides deadEndX, deadEndY, deadEndDirection, Type.WALL
     return @
 
   removeDeadEnds: (deadendRemovalness) ->
-    for deadEnd in @deadEndLocations()
-      if @Random.next(0, 100) < deadendRemovalness
-        cell = @get deadEnd...
+    for [deadEndX, deadEndY] in @deadEndLocations()
+      if @Random.next(1, 99) < deadendRemovalness
+        cell = @get deadEndX, deadEndY
         while cell.isDeadEnd()
-          validDirections = (d for d in DIRECTIONS when @hasAdjacent(deadEnd..., d) and d isnt DIRECTIONS.opposite cell.deadEndDirection() )
-          d = validDirections[@Random.next(0, validDirections.length-1)]
-          @createCorridor deadEnd..., d
-          cell = @getAdjacentCell deadEnd..., d
+          validDirection = ( d for d in Direction when @hasAdjacent(deadEndX, deadEndY, d) and d isnt cell.deadEndDirection() )
+          d = validDirection[@Random.next(0, validDirection.length-1)]
+          @createCorridor deadEndX, deadEndY, d
+          [deadEndX, deadEndY] = @getAdjacent deadEndX, deadEndY, d
+          cell = @get deadEndX, deadEndY
     return @

@@ -41,7 +41,9 @@ describe 'Dungeon Generator', ->
     it "should prefer overwriting corridors to overwriting rooms", ->
       blockCorridor = d.roomPlacementScore new Room(1,1), 4, 1
       blockRoom = d.roomPlacementScore new Room(1,1), 1, 1
+      blockNone = d.roomPlacementScore new Room(1,1), 5, 5
       expect(blockCorridor).to.be.greaterThan blockRoom
+      expect(blockNone).to.be.greaterThan blockCorridor
 
 
 describe "Generation", ->
@@ -57,13 +59,33 @@ describe "Generation", ->
   it "should generate zigzaggy dungeons", ->
     dungeon.createDenseMaze(30)
     expect(dungeon.rooms).to.be.empty
-    # walls = (cell.wallCount() for cell in dungeon.data).reduce( (a,b) -> a+b )
-    # more_zigzaggy_dungeon = new Dungeon(25, 25, SEED).createDenseMaze(90)
-    # more_zigzaggy_walls = (cell.wallCount() for cell in more_zigzaggy_dungeon.data).reduce( (a,b) -> a+b )
-    # expect(more_zigzaggy_walls).to.be.greaterThan walls
     # TODO how to measure zigzaggyness
 
   it "should generate sparse dungeons", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(100)
+    expect(cell.wallCount()).to.eq 4 for cell in dungeon.data #all cells should have been blocked
 
-  it "should generate dungeons with dead-ends", ->
+  it "should generate non-sparse dungeons", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(0)
+    expect(cell.wallCount()).to.be.lessThan 4 for cell in dungeon.data #no cells should have been blocked
+
+  it "should generate medium-sparce dungeons", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(50)
+    blockCells = (cell for cell in dungeon.data when cell.wallCount() == 4)
+    expect(blockCells.length).to.eq Math.ceil(25*25/2) # half of the cells should have been blocked
   
+  it "should generate dungeons with dead-ends", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(70)
+    deadEnds = dungeon.deadEndLocations()
+    expect(deadEnds.length).to.be.greaterThan 0
+    dungeon.removeDeadEnds(0)
+    newDeadEnds = dungeon.deadEndLocations()
+    expect(newDeadEnds.length).to.eq deadEnds.length
+
+  it "should generate dungeons without dead-ends", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(70)
+    deadEnds = dungeon.deadEndLocations()
+    expect(deadEnds.length).to.be.greaterThan 0
+    dungeon.removeDeadEnds(100)
+    deadEnds = dungeon.deadEndLocations()
+    expect(deadEnds.length).to.eq 0

@@ -1,9 +1,9 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.DungeonGenerator = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Cell, DIRECTIONS, TYPES;
+var Cell, Direction, Type;
 
-DIRECTIONS = require('./directions');
+Direction = require('./direction');
 
-TYPES = require('./types');
+Type = require('./type');
 
 
 /*
@@ -14,14 +14,14 @@ TYPES = require('./types');
 module.exports = Cell = (function() {
 
   /*
-    @param {Object} data - The state to initialize the cell with. Keys are DIRECTIONS and
-      values are TYPES. For example:
+    @param {Object} data - The state to initialize the cell with. Keys are Direction and
+      values are Type. For example:
         {
           'north': 'wall',
           'east': 'door'
         }
-      Any unspecified directions will be set to 'empty'.
-      If it is omitted, the cell will be marked as blank and none of the directions
+      Any unspecified Direction will be set to 'empty'.
+      If it is omitted, the cell will be marked as blank and none of the Direction
       will be set.
    */
   function Cell(data) {
@@ -52,18 +52,18 @@ module.exports = Cell = (function() {
   };
 
   Cell.prototype.wallCount = function() {
-    return this.typeCount(TYPES.WALL);
+    return this.typeCount(Type.WALL);
   };
 
   Cell.prototype.doorCount = function() {
-    return this.typeCount(TYPES.DOOR);
+    return this.typeCount(Type.DOOR);
   };
 
   Cell.prototype.typeCount = function(type) {
     var count, d, i, len;
     count = 0;
-    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-      d = DIRECTIONS[i];
+    for (i = 0, len = Direction.length; i < len; i++) {
+      d = Direction[i];
       if (this[d] === type) {
         count++;
       }
@@ -76,9 +76,9 @@ module.exports = Cell = (function() {
     if (!this.isDeadEnd()) {
       return false;
     }
-    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-      d = DIRECTIONS[i];
-      if (this[d] === TYPES.EMPTY) {
+    for (i = 0, len = Direction.length; i < len; i++) {
+      d = Direction[i];
+      if (this[d] === Type.EMPTY) {
         return d;
       }
     }
@@ -91,9 +91,9 @@ module.exports = Cell = (function() {
 
   Cell.prototype.update = function(data) {
     var direction, i, len;
-    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-      direction = DIRECTIONS[i];
-      this[direction] = data[direction] != null ? data[direction] : TYPES.EMPTY;
+    for (i = 0, len = Direction.length; i < len; i++) {
+      direction = Direction[i];
+      this[direction] = data[direction] != null ? data[direction] : Type.EMPTY;
     }
     return this._blank = false;
   };
@@ -111,77 +111,77 @@ module.exports = Cell = (function() {
     cell = new Array(9);
     cell[4] = "*";
     cell[1] = (function() {
-      switch (this[DIRECTIONS.NORTH]) {
-        case TYPES.WALL:
+      switch (this[Direction.NORTH]) {
+        case Type.WALL:
           return "─";
-        case TYPES.DOOR:
+        case Type.DOOR:
           return "~";
-        case TYPES.EMPTY:
+        case Type.EMPTY:
           return " ";
       }
     }).call(this);
     cell[7] = (function() {
-      switch (this[DIRECTIONS.SOUTH]) {
-        case TYPES.WALL:
+      switch (this[Direction.SOUTH]) {
+        case Type.WALL:
           return "─";
-        case TYPES.DOOR:
+        case Type.DOOR:
           return "~";
-        case TYPES.EMPTY:
+        case Type.EMPTY:
           return " ";
       }
     }).call(this);
     cell[3] = (function() {
-      switch (this[DIRECTIONS.WEST]) {
-        case TYPES.WALL:
+      switch (this[Direction.WEST]) {
+        case Type.WALL:
           return "│";
-        case TYPES.DOOR:
+        case Type.DOOR:
           return "~";
-        case TYPES.EMPTY:
+        case Type.EMPTY:
           return " ";
       }
     }).call(this);
     cell[5] = (function() {
-      switch (this[DIRECTIONS.EAST]) {
-        case TYPES.WALL:
+      switch (this[Direction.EAST]) {
+        case Type.WALL:
           return "│";
-        case TYPES.DOOR:
+        case Type.DOOR:
           return "~";
-        case TYPES.EMPTY:
+        case Type.EMPTY:
           return " ";
       }
     }).call(this);
-    if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    if (this[Direction.NORTH] !== Type.EMPTY && this[Direction.WEST] !== Type.EMPTY) {
       cell[0] = "┌";
-    } else if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY) {
+    } else if (this[Direction.NORTH] !== Type.EMPTY) {
       cell[0] = "─";
-    } else if (this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    } else if (this[Direction.WEST] !== Type.EMPTY) {
       cell[0] = "│";
     } else {
       cell[0] = " ";
     }
-    if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    if (this[Direction.SOUTH] !== Type.EMPTY && this[Direction.WEST] !== Type.EMPTY) {
       cell[6] = "└";
-    } else if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY) {
+    } else if (this[Direction.SOUTH] !== Type.EMPTY) {
       cell[6] = "─";
-    } else if (this[DIRECTIONS.WEST] !== TYPES.EMPTY) {
+    } else if (this[Direction.WEST] !== Type.EMPTY) {
       cell[6] = "│";
     } else {
       cell[6] = " ";
     }
-    if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    if (this[Direction.SOUTH] !== Type.EMPTY && this[Direction.EAST] !== Type.EMPTY) {
       cell[8] = "┘";
-    } else if (this[DIRECTIONS.SOUTH] !== TYPES.EMPTY) {
+    } else if (this[Direction.SOUTH] !== Type.EMPTY) {
       cell[8] = "─";
-    } else if (this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    } else if (this[Direction.EAST] !== Type.EMPTY) {
       cell[8] = "│";
     } else {
       cell[8] = " ";
     }
-    if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY && this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    if (this[Direction.NORTH] !== Type.EMPTY && this[Direction.EAST] !== Type.EMPTY) {
       cell[2] = "┐";
-    } else if (this[DIRECTIONS.NORTH] !== TYPES.EMPTY) {
+    } else if (this[Direction.NORTH] !== Type.EMPTY) {
       cell[2] = "─";
-    } else if (this[DIRECTIONS.EAST] !== TYPES.EMPTY) {
+    } else if (this[Direction.EAST] !== Type.EMPTY) {
       cell[2] = "│";
     } else {
       cell[2] = " ";
@@ -194,14 +194,14 @@ module.exports = Cell = (function() {
 })();
 
 
-},{"./directions":2,"./types":9}],2:[function(require,module,exports){
-var DIRECTIONS, Enum;
+},{"./direction":2,"./type":9}],2:[function(require,module,exports){
+var Direction, Enum;
 
 Enum = require('./enum');
 
-DIRECTIONS = new Enum('north', 'south', 'east', 'west');
+Direction = new Enum('north', 'south', 'east', 'west');
 
-DIRECTIONS.opposite = function(dir) {
+Direction.opposite = function(dir) {
   switch (dir) {
     case this.NORTH:
       return this.SOUTH;
@@ -216,18 +216,18 @@ DIRECTIONS.opposite = function(dir) {
   }
 };
 
-module.exports = DIRECTIONS;
+module.exports = Direction;
 
 
 },{"./enum":4}],3:[function(require,module,exports){
-var DIRECTIONS, Dungeon, Room, TYPES, VisitableMap,
+var Direction, Dungeon, Room, Type, VisitableMap,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   slice = [].slice;
 
-DIRECTIONS = require('./directions');
+Direction = require('./direction');
 
-TYPES = require('./types');
+Type = require('./type');
 
 VisitableMap = require('./visitable-map');
 
@@ -272,15 +272,15 @@ module.exports = Dungeon = (function(superClass) {
       throw new Error("Can't add " + direction + " " + type + " at " + x + ", " + y + ": Out of Bounds");
     }
     this.setCellSide(x, y, direction, type);
-    return this.setCellSide.apply(this, slice.call(this.getAdjacent(x, y, direction)).concat([DIRECTIONS.opposite(direction)], [type]));
+    return this.setCellSide.apply(this, slice.call(this.getAdjacent(x, y, direction)).concat([Direction.opposite(direction)], [type]));
   };
 
   Dungeon.prototype.createDoor = function(x, y, direction) {
-    return this.setBothSides(x, y, direction, TYPES.DOOR);
+    return this.setBothSides(x, y, direction, Type.DOOR);
   };
 
   Dungeon.prototype.createCorridor = function(x, y, direction) {
-    this.setBothSides(x, y, direction, TYPES.EMPTY);
+    this.setBothSides(x, y, direction, Type.EMPTY);
     return this.getAdjacent(x, y, direction);
   };
 
@@ -305,8 +305,8 @@ module.exports = Dungeon = (function(superClass) {
       ref1 = ref[j], roomX = ref1[0], roomY = ref1[1];
       dX = x + roomX;
       dY = y + roomY;
-      for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
-        direction = DIRECTIONS[k];
+      for (k = 0, len1 = Direction.length; k < len1; k++) {
+        direction = Direction[k];
         if (this.adjacentIsCorridor(dX, dY, direction)) {
           score--;
         }
@@ -352,8 +352,8 @@ module.exports = Dungeon = (function(superClass) {
     for (j = 0, len = ref.length; j < len; j++) {
       room = ref[j];
       ref1 = room.location, dX = ref1[0], dY = ref1[1];
-      for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
-        direction = DIRECTIONS[k];
+      for (k = 0, len1 = Direction.length; k < len1; k++) {
+        direction = Direction[k];
         if (!room.hasDoorOnSide(direction)) {
           ref2 = room.getRandomCellAlongSide(direction, this.Random), rX = ref2[0], rY = ref2[1];
           this.createDoor(dX + rX, dY + rY, direction);
@@ -366,9 +366,9 @@ module.exports = Dungeon = (function(superClass) {
   Dungeon.prototype.createDenseMaze = function(zigzagyness) {
     var c, d, defaultCell, direction, j, k, len, len1, ref, ref1, ref2, ref3, valid, x, y;
     defaultCell = {};
-    for (j = 0, len = DIRECTIONS.length; j < len; j++) {
-      d = DIRECTIONS[j];
-      defaultCell[d] = TYPES.WALL;
+    for (j = 0, len = Direction.length; j < len; j++) {
+      d = Direction[j];
+      defaultCell[d] = Type.WALL;
     }
     ref = this.data;
     for (k = 0, len1 = ref.length; k < len1; k++) {
@@ -378,12 +378,12 @@ module.exports = Dungeon = (function(superClass) {
     this.flagAllCellsAsUnvisited();
     ref1 = this.pickRandomUnvisitedCell(), x = ref1[0], y = ref1[1];
     this.visitCell(x, y);
-    direction = DIRECTIONS.NORTH;
+    direction = Direction.NORTH;
     while (!this.allCellsVisited()) {
       ref2 = this.pickRandomVisitedCell(), x = ref2[0], y = ref2[1];
       valid = this.validWalkDirections(x, y);
       while (valid.length > 0 && !this.allCellsVisited()) {
-        if (valid.indexOf(direction) === -1 || this.Random.next(0, 100) < zigzagyness) {
+        if (valid.indexOf(direction) === -1 || this.Random.next(1, 99) < zigzagyness) {
           direction = valid[this.Random.next(0, valid.length - 1)];
         }
         ref3 = this.createCorridor(x, y, direction), x = ref3[0], y = ref3[1];
@@ -395,45 +395,44 @@ module.exports = Dungeon = (function(superClass) {
   };
 
   Dungeon.prototype.sparsifyMaze = function(sparseness) {
-    var cell, cellsToRemove, deadEndDirection, deadEnds, i, j, ref;
-    cellsToRemove = Math.ceil((sparseness / 100) * (this.width + this.height));
-    for (i = j = 0, ref = cellsToRemove; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+    var cell, cellsToRemove, deadEndDirection, deadEndX, deadEndY, deadEnds, i, j, ref, ref1;
+    cellsToRemove = Math.ceil((sparseness / 100) * (this.width * this.height));
+    for (i = j = 0, ref = cellsToRemove; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
       deadEnds = this.deadEndLocations();
       if (deadEnds.length === 0) {
         break;
       }
-      cell = this.get.apply(this, deadEnds[this.Random.next(0, deadEnds.length - 1)]);
+      ref1 = deadEnds[this.Random.next(0, deadEnds.length - 1)], deadEndX = ref1[0], deadEndY = ref1[1];
+      cell = this.get(deadEndX, deadEndY);
       deadEndDirection = cell.deadEndDirection();
-      cell.setSide(deadEndDirection, TYPES.WALL);
-      if (this.hasAdjacent.apply(this, slice.call(deadEnd).concat([deadEndDirection]))) {
-        this.getAdjacentCell.apply(this, slice.call(deadEnd).concat([deadEndDirection])).setSide(DIRECTIONS.opposite(deadEndDirection, TYPES.WALL));
-      }
+      this.setBothSides(deadEndX, deadEndY, deadEndDirection, Type.WALL);
     }
     return this;
   };
 
   Dungeon.prototype.removeDeadEnds = function(deadendRemovalness) {
-    var cell, d, deadEnd, j, len, ref, validDirections;
+    var cell, d, deadEndX, deadEndY, j, len, ref, ref1, ref2, validDirection;
     ref = this.deadEndLocations();
     for (j = 0, len = ref.length; j < len; j++) {
-      deadEnd = ref[j];
-      if (this.Random.next(0, 100) < deadendRemovalness) {
-        cell = this.get.apply(this, deadEnd);
+      ref1 = ref[j], deadEndX = ref1[0], deadEndY = ref1[1];
+      if (this.Random.next(1, 99) < deadendRemovalness) {
+        cell = this.get(deadEndX, deadEndY);
         while (cell.isDeadEnd()) {
-          validDirections = (function() {
+          validDirection = (function() {
             var k, len1, results;
             results = [];
-            for (k = 0, len1 = DIRECTIONS.length; k < len1; k++) {
-              d = DIRECTIONS[k];
-              if (this.hasAdjacent.apply(this, slice.call(deadEnd).concat([d])) && d !== DIRECTIONS.opposite(cell.deadEndDirection())) {
+            for (k = 0, len1 = Direction.length; k < len1; k++) {
+              d = Direction[k];
+              if (this.hasAdjacent(deadEndX, deadEndY, d) && d !== cell.deadEndDirection()) {
                 results.push(d);
               }
             }
             return results;
           }).call(this);
-          d = validDirections[this.Random.next(0, validDirections.length - 1)];
-          this.createCorridor.apply(this, slice.call(deadEnd).concat([d]));
-          cell = this.getAdjacentCell.apply(this, slice.call(deadEnd).concat([d]));
+          d = validDirection[this.Random.next(0, validDirection.length - 1)];
+          this.createCorridor(deadEndX, deadEndY, d);
+          ref2 = this.getAdjacent(deadEndX, deadEndY, d), deadEndX = ref2[0], deadEndY = ref2[1];
+          cell = this.get(deadEndX, deadEndY);
         }
       }
     }
@@ -445,7 +444,7 @@ module.exports = Dungeon = (function(superClass) {
 })(VisitableMap);
 
 
-},{"./directions":2,"./room":8,"./types":9,"./visitable-map":10}],4:[function(require,module,exports){
+},{"./direction":2,"./room":8,"./type":9,"./visitable-map":10}],4:[function(require,module,exports){
 
 /*
 An enum is just an array of strings which also sets the values as all-caps parameters.
@@ -493,19 +492,19 @@ generate = function(opts) {
   return dungeon.createDenseMaze(zigzagyness).sparsifyMaze(sparseness).removeDeadEnds(deadendRemovalness).generateRooms(roomCount, minWidth, maxWidth, minHeight, maxHeight);
 };
 
-generate.DIRECTIONS = require('./directions');
+generate.Direction = require('./direction');
 
-generate.TYPES = require('./types');
+generate.Type = require('./type');
 
 module.exports = generate;
 
 
-},{"./directions":2,"./dungeon":3,"./types":9}],6:[function(require,module,exports){
-var ArrayGrid, Cell, DIRECTIONS, Map,
+},{"./direction":2,"./dungeon":3,"./type":9}],6:[function(require,module,exports){
+var ArrayGrid, Cell, Direction, Map,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-DIRECTIONS = require('./directions');
+Direction = require('./direction');
 
 ArrayGrid = require('array-grid');
 
@@ -545,7 +544,7 @@ Map = (function(superClass) {
   Map.prototype.getSide = function(direction) {
     var x, y;
     switch (direction) {
-      case DIRECTIONS.NORTH:
+      case Direction.NORTH:
         return (function() {
           var i, ref, results;
           results = [];
@@ -554,7 +553,7 @@ Map = (function(superClass) {
           }
           return results;
         }).call(this);
-      case DIRECTIONS.SOUTH:
+      case Direction.SOUTH:
         return (function() {
           var i, ref, results;
           results = [];
@@ -563,7 +562,7 @@ Map = (function(superClass) {
           }
           return results;
         }).call(this);
-      case DIRECTIONS.EAST:
+      case Direction.EAST:
         return (function() {
           var i, ref, results;
           results = [];
@@ -572,7 +571,7 @@ Map = (function(superClass) {
           }
           return results;
         }).call(this);
-      case DIRECTIONS.WEST:
+      case Direction.WEST:
         return (function() {
           var i, ref, results;
           results = [];
@@ -644,13 +643,13 @@ Map = (function(superClass) {
 
   Map.prototype.getAdjacent = function(x, y, direction) {
     switch (direction) {
-      case DIRECTIONS.NORTH:
+      case Direction.NORTH:
         return [x, y - 1];
-      case DIRECTIONS.SOUTH:
+      case Direction.SOUTH:
         return [x, y + 1];
-      case DIRECTIONS.WEST:
+      case Direction.WEST:
         return [x - 1, y];
-      case DIRECTIONS.EAST:
+      case Direction.EAST:
         return [x + 1, y];
       default:
         throw new Error("Invalid direction: " + direction);
@@ -671,13 +670,13 @@ Map = (function(superClass) {
 
   Map.prototype.getRandomCellAlongSide = function(direction, generator) {
     switch (direction) {
-      case DIRECTIONS.NORTH:
+      case Direction.NORTH:
         return [generator.next(0, this.width - 1), 0];
-      case DIRECTIONS.SOUTH:
+      case Direction.SOUTH:
         return [generator.next(0, this.width - 1), this.height - 1];
-      case DIRECTIONS.WEST:
+      case Direction.WEST:
         return [0, generator.next(0, this.height - 1)];
-      case DIRECTIONS.EAST:
+      case Direction.EAST:
         return [this.width - 1, generator.next(0, this.height - 1)];
       default:
         throw new Error("Invalid direction: " + direction);
@@ -754,7 +753,7 @@ Map.overlap = function(aMap, bMap, x, y) {
 module.exports = Map;
 
 
-},{"./cell":1,"./directions":2,"array-grid":11}],7:[function(require,module,exports){
+},{"./cell":1,"./direction":2,"array-grid":11}],7:[function(require,module,exports){
 var MersenneTwister, RandomJS;
 
 RandomJS = require('random-js');
@@ -786,15 +785,15 @@ module.exports = MersenneTwister = (function() {
 
 
 },{"random-js":12}],8:[function(require,module,exports){
-var DIRECTONS, Map, Room, TYPES,
+var Direction, Map, Room, Type,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 Map = require('./map');
 
-TYPES = require('./types');
+Type = require('./type');
 
-DIRECTONS = require('./directions');
+Direction = require('./direction');
 
 module.exports = Room = (function(superClass) {
   extend(Room, superClass);
@@ -821,15 +820,15 @@ module.exports = Room = (function(superClass) {
   Room.prototype.makeWalls = function() {
     var direction, i, len, results, x, y;
     results = [];
-    for (i = 0, len = DIRECTONS.length; i < len; i++) {
-      direction = DIRECTONS[i];
+    for (i = 0, len = Direction.length; i < len; i++) {
+      direction = Direction[i];
       results.push((function() {
         var j, len1, ref, ref1, results1;
         ref = this.getSide(direction);
         results1 = [];
         for (j = 0, len1 = ref.length; j < len1; j++) {
           ref1 = ref[j], x = ref1[0], y = ref1[1];
-          results1.push(this.get(x, y).setSide(direction, TYPES.WALL));
+          results1.push(this.get(x, y).setSide(direction, Type.WALL));
         }
         return results1;
       }).call(this));
@@ -853,7 +852,7 @@ module.exports = Room = (function(superClass) {
 })(Map);
 
 
-},{"./directions":2,"./map":6,"./types":9}],9:[function(require,module,exports){
+},{"./direction":2,"./map":6,"./type":9}],9:[function(require,module,exports){
 var Enum;
 
 Enum = require('./enum');
@@ -862,13 +861,11 @@ module.exports = new Enum('door', 'wall', 'empty');
 
 
 },{"./enum":4}],10:[function(require,module,exports){
-var DIRECTIONS, MTRandom, Map, TYPES, VisitableMap,
+var Direction, MTRandom, Map, VisitableMap,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-DIRECTIONS = require('./directions');
-
-TYPES = require('./types');
+Direction = require('./direction');
 
 Map = require('./map');
 
@@ -963,8 +960,8 @@ module.exports = VisitableMap = (function(superClass) {
   VisitableMap.prototype.validWalkDirections = function(x, y) {
     var d, i, len, results;
     results = [];
-    for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-      d = DIRECTIONS[i];
+    for (i = 0, len = Direction.length; i < len; i++) {
+      d = Direction[i];
       if (this.adjacentInBounds(x, y, d) && !this.adjacentIsVisited(x, y, d)) {
         results.push(d);
       }
@@ -977,7 +974,7 @@ module.exports = VisitableMap = (function(superClass) {
 })(Map);
 
 
-},{"./directions":2,"./map":6,"./random":7,"./types":9}],11:[function(require,module,exports){
+},{"./direction":2,"./map":6,"./random":7}],11:[function(require,module,exports){
 module.exports = ArrayGrid
 
 function ArrayGrid(data, shape, stride, offset){

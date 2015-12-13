@@ -12,6 +12,6 @@ generate = (opts={}) ->
     # .addDoors()
 
 
-generate.DIRECTIONS = require './directions'
-generate.TYPES = require './types'
+generate.Direction = require './direction'
+generate.Type = require './type'
 module.exports = generate

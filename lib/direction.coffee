@@ -1,8 +1,8 @@
 Enum = require './enum'
 
-DIRECTIONS = new Enum 'north', 'south', 'east', 'west'
+Direction = new Enum 'north', 'south', 'east', 'west'
 
-DIRECTIONS.opposite = (dir) ->
+Direction.opposite = (dir) ->
   switch dir
     when @NORTH then return @SOUTH
     when @SOUTH then return @NORTH
@@ -10,4 +10,4 @@ DIRECTIONS.opposite = (dir) ->
     when @WEST  then return @EAST
     else throw "Invalid direction #{dir}"
 
-module.exports = DIRECTIONS
+module.exports = Direction

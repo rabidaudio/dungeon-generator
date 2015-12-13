@@ -1,4 +1,4 @@
-DIRECTIONS = require './directions'
+Direction = require './direction'
 ArrayGrid = require 'array-grid'
 Cell = require './cell'
 
@@ -14,10 +14,10 @@ class Map extends ArrayGrid
 
   getSide: (direction) ->
     switch direction
-      when DIRECTIONS.NORTH then return ([x, 0] for x in [0..@width-1])
-      when DIRECTIONS.SOUTH then return ([x, @height-1] for x in [0..@width-1])
-      when DIRECTIONS.EAST  then return ([@width-1, y] for y in [0..@height-1])
-      when DIRECTIONS.WEST  then return ([0, y] for y in [0..@height-1])
+      when Direction.NORTH then return ([x, 0] for x in [0..@width-1])
+      when Direction.SOUTH then return ([x, @height-1] for x in [0..@width-1])
+      when Direction.EAST  then return ([@width-1, y] for y in [0..@height-1])
+      when Direction.WEST  then return ([0, y] for y in [0..@height-1])
       else throw new Error "Invalid direction: #{direction}"
 
   setCellSide: (x,y, direction, value) -> @get(x,y).setSide direction, value
@@ -34,10 +34,10 @@ class Map extends ArrayGrid
 
   getAdjacent: (x, y, direction) ->
     switch direction
-      when DIRECTIONS.NORTH then return [x,  y-1]
-      when DIRECTIONS.SOUTH then return [x,  y+1]
-      when DIRECTIONS.WEST  then return [x-1,  y]
-      when DIRECTIONS.EAST  then return [x+1,  y]
+      when Direction.NORTH then return [x,  y-1]
+      when Direction.SOUTH then return [x,  y+1]
+      when Direction.WEST  then return [x-1,  y]
+      when Direction.EAST  then return [x+1,  y]
       else throw new Error "Invalid direction: #{direction}"
 
   getAdjacentCell: (x, y, direction) -> @get @getAdjacent(x, y, direction)...
@@ -48,10 +48,10 @@ class Map extends ArrayGrid
 
   getRandomCellAlongSide: (direction, generator) ->
     switch direction
-      when DIRECTIONS.NORTH then return [generator.next(0, @width-1), 0]
-      when DIRECTIONS.SOUTH then return [generator.next(0, @width-1), @height-1]
-      when DIRECTIONS.WEST  then return [0, generator.next(0, @height-1)]
-      when DIRECTIONS.EAST  then return [@width-1, generator.next(0, @height-1)]
+      when Direction.NORTH then return [generator.next(0, @width-1), 0]
+      when Direction.SOUTH then return [generator.next(0, @width-1), @height-1]
+      when Direction.WEST  then return [0, generator.next(0, @height-1)]
+      when Direction.EAST  then return [@width-1, generator.next(0, @height-1)]
       else throw new Error "Invalid direction: #{direction}"
 
   print: ->

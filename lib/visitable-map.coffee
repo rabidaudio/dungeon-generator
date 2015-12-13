@@ -1,5 +1,4 @@
-DIRECTIONS = require './directions'
-TYPES = require './types'
+Direction = require './direction'
 Map = require './map'
 MTRandom = require './random'
 
@@ -40,4 +39,4 @@ module.exports = class VisitableMap extends Map
   allCellsVisited: -> @visitedCount is @width*@height
 
   validWalkDirections: (x,y) ->
-    d for d in DIRECTIONS when @adjacentInBounds(x,y,d) and not @adjacentIsVisited(x,y,d)
+    d for d in Direction when @adjacentInBounds(x,y,d) and not @adjacentIsVisited(x,y,d)
