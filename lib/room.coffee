@@ -28,4 +28,4 @@ module.exports = class Room extends Map
     #   c.east  = Type.WALL if x is @width - 1
     #   @update x, y, c if c.north or c.south or c.east or c.west
 
-  makeCorridor: -> c.corridor = true for c in @data
+  # makeCorridor: -> c.corridor = true for c in @data

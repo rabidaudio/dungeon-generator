@@ -17,7 +17,9 @@ module.exports = class Cell
       If it is omitted, the cell will be marked as blank and none of the Direction
       will be set.
   ###
-  constructor: (data=null) -> if data? then @update(data) else @_blank = true
+  constructor: (data=null) ->
+    if data? then @update(data) else @_blank = true
+    @corridor = false
 
   isDeadEnd: -> @wallCount() is 3
 
@@ -54,10 +56,10 @@ module.exports = class Cell
     Return a 3x3 character representation of the cell
   ###
   print: ->
-    return "▒▒▒\n▒▒▒\n▒▒▒\n" if @isBlank()
+    return "▒▒▒\n▒▒▒\n▒▒▒\n" if @isBlank() or @wallCount() is 4
     cell = new Array(9)
     #center
-    cell[4] = "*"
+    if @corridor then cell[4] = "c" else cell[4] = "*"
     #edges
     cell[1] = switch @[Direction.NORTH]
       when Type.WALL  then "─"

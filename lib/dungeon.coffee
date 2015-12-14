@@ -2,6 +2,7 @@ Direction = require './direction'
 Type = require './type'
 VisitableMap = require './visitable-map'
 Room = require './room'
+Map = require './map'
 
 module.exports = class Dungeon extends VisitableMap
 
@@ -20,17 +21,22 @@ module.exports = class Dungeon extends VisitableMap
     if @adjacentInBounds(x,y,direction) then @getAdjacentCell(x,y,direction).corridor else false
 
   setBothSides: (x, y, direction, type) ->
-    if not @inBounds(x,y) or not @hasAdjacent(x,y,direction)
+    if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
       throw new Error "Can't add #{direction} #{type} at #{x}, #{y}: Out of Bounds"
     @setCellSide x, y, direction, type
     @setCellSide @getAdjacent(x,y,direction)..., Direction.opposite(direction), type
 
   createDoor: (x, y, direction) ->
+    if not @inBounds(x,y) or not @adjacentInBounds(x,y,direction)
+      throw new Error "Can't place door at #{x}, #{y} to #{direction}: Out of Bounds"
+    if @get(x,y).isBlank() or @getAdjacentCell(x,y,direction).isBlank()
+      throw new Error "Can't add doors to blank cells"
     @setBothSides x, y, direction, Type.DOOR
 
 
   createCorridor: (x, y, direction) ->
     @setBothSides x, y, direction, Type.EMPTY
+    @get(x,y).corridor = true
     return @getAdjacent(x,y,direction)
 
   willFit: (room, x=0, y=0) -> room.width <= (@width - x) and room.height <= (@height - y)
@@ -48,15 +54,27 @@ module.exports = class Dungeon extends VisitableMap
         #loose 3 points if the cell overlaps an existing corridor
         score -= 3 if dCell.corridor
         # loose 100 points if the cell overlaps any existing room cells
-        score -= 100 if not dCell.corridor
+        score -= 100 if @roomOverlapsExisting room, x, y
     return score
 
-  generateRooms: (number, minWidth, maxWidth, minHeight, maxHeight) ->
-    for count in [0...number]
+  roomOverlapsExisting: (room, x, y) ->
+    for existingRoom in @rooms
+      [eX1, eY1] = existingRoom.location
+      eX2 = eX1 + existingRoom.width
+      eY2 = eY1 + existingRoom.height
+      for [newX, newY] in room.allLocations()
+        if (newX+x >= eX1 and newX+x <= eX2) and (newY+y >= eY1 and newY+y <= eY2)
+          # console.log "overlap placing #{[newX+x,newY+y]} into #{[eX1, eX2]}: hits room #{existingRoom.location}"
+          return true
+    return false
+
+
+  generateRooms: (count, minWidth, maxWidth, minHeight, maxHeight) ->
+    for i in [0...count]
       room = new Room @Random.next(minWidth, maxWidth), @Random.next(minHeight, maxHeight)
       bestScore = -Infinity
       bestSpot = undefined
-      for [dX, dY] in @allLocations()
+      for [dX, dY] in @allLocations() when @get(dX, dY).corridor
         newScore = @roomPlacementScore(room, dX, dY)
         if newScore>bestScore
           bestScore = newScore
@@ -106,6 +124,7 @@ module.exports = class Dungeon extends VisitableMap
       cell = @get deadEndX, deadEndY
       deadEndDirection = cell.deadEndDirection()
       @setBothSides deadEndX, deadEndY, deadEndDirection, Type.WALL
+      cell.corridor = false
     return @
 
   removeDeadEnds: (deadendRemovalness) ->

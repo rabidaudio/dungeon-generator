@@ -4,19 +4,21 @@ expect = chai.expect
 
 Dungeon = require '../lib/dungeon'
 Room = require '../lib/room'
+Map = require '../lib/map'
+Direction = require '../lib/direction'
 
 Generator = require '../lib'
 
 describe 'Dungeon Generator', ->
   d = new Dungeon 10, 10
   square = new Room 3, 3
-  hall = new Room 4, 1
 
-  c.corridor = true for c in hall.data
+  for x in [3..6]
+    d.createCorridor x, 1, Direction.EAST
 
   d.addRoom square, 0, 0
   d.addRoom square, 7, 0
-  d.addRoom hall, 3, 1
+
   ###
       XXX????XXX
       X XCCCCX X
@@ -39,7 +41,7 @@ describe 'Dungeon Generator', ->
       expect( d.roomPlacementScore(new Room(3,3),5,5) ).to.equal 0
 
     it "should prefer overwriting corridors to overwriting rooms", ->
-      blockCorridor = d.roomPlacementScore new Room(1,1), 4, 1
+      blockCorridor = d.roomPlacementScore new Room(1,1), 5, 1
       blockRoom = d.roomPlacementScore new Room(1,1), 1, 1
       blockNone = d.roomPlacementScore new Room(1,1), 5, 5
       expect(blockCorridor).to.be.greaterThan blockRoom
@@ -89,3 +91,11 @@ describe "Generation", ->
     dungeon.removeDeadEnds(100)
     deadEnds = dungeon.deadEndLocations()
     expect(deadEnds.length).to.eq 0
+
+  it "should generate rooms", ->
+    dungeon.createDenseMaze(30).sparsifyMaze(70).removeDeadEnds(50)
+    expect(dungeon.rooms).to.be.empty
+    dungeon.generateRooms 3, 3, 3, 3, 3
+    expect(dungeon.rooms.length).to.eq 3
+    # for room in dungeon.rooms
+      # expect(dungeon.roomOverlapsExisting()).to.eq 0 #no overlapping rooms

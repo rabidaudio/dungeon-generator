@@ -82,7 +82,7 @@ describe 'Dungeon', ->
       expect(()-> d.createDoor(0,0, 'north')).to.throw /Out of Bounds/
 
     it "shouldn't try to add doors to empty cells", ->
-      expect(()-> d.createDoor(0,2, 'south')).to.throw /Out of Bounds/
+      expect(()-> d.createDoor(0,2, 'south')).to.throw /blank cells/
       # d.createDoor(0,2, 'south')
       # expect(d.get(0,2)).to.have.property 'south', 'wall'
       # expect(d.get(0,3).blank).to.be.true
